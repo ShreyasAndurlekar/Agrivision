@@ -1,0 +1,298 @@
+:root {
+    font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+    font-weight: 400;
+  
+    color-scheme: light dark;
+    color: rgba(255, 255, 255, 0.87);
+    background-color: #242424;
+  
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  a {
+    font-weight: 500;
+    color: #646cff;
+    text-decoration: inherit;
+  }
+  a:hover {
+    color: #535bf2;
+  }
+  
+  body {
+    margin: 0;
+    display: flex;
+    place-items: center;
+    min-width: 320px;
+    min-height: 100vh;
+  }
+  
+  h1 {
+    font-size: 3.2em;
+    line-height: 1.1;
+  }
+  
+  button {
+    border-radius: 8px;
+    border: 1px solid transparent;
+    padding: 0.6em 1.2em;
+    font-size: 1em;
+    font-weight: 500;
+    font-family: inherit;
+    background-color: #1a1a1a;
+    cursor: pointer;
+    transition: border-color 0.25s;
+  }
+  button:hover {
+    border-color: #646cff;
+  }
+  button:focus,
+  button:focus-visible {
+    outline: 4px auto -webkit-focus-ring-color;
+  }
+  
+  @media (prefers-color-scheme: light) {
+    :root {
+      color: #213547;
+      background-color: #ffffff;
+    }
+    a:hover {
+      color: #747bff;
+    }
+    button {
+      background-color: #f9f9f9;
+    }
+  }
+  
+  .diseasedet {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 2rem;
+  }
+  
+  /* Content container */
+  .diseasedet .content-container {
+    background-color: #fff;
+    padding: 2rem;
+    border-radius: 1rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    max-width: 900px;
+    width: 100%;
+  }
+  
+  /* Title Styles */
+  .diseasedet .title {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 1.5rem;
+  }
+  
+  /* Description Text */
+  .diseasedet .description {
+    color: #666;
+    margin-bottom: 1.5rem;
+    font-size: 1rem;
+  }
+  
+  /* Instruction List */
+  .diseasedet .instruction-list {
+    list-style-type: disc;
+    margin-left: 1.5rem;
+    color: #666;
+    margin-bottom: 1.5rem;
+  }
+  
+  /* Upload Section */
+  .diseasedet .upload-container {
+    border: 2px dashed #cccccc;
+    padding: 2rem;
+    text-align: center;
+    background-color: #f9fafb;
+    border-radius: 0.75rem;
+    margin-bottom: 2rem;
+  }
+  
+  .diseasedet .upload-button {
+    background-color: #fbbf24;
+    color: #fff;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .diseasedet .upload-button:hover {
+    background-color: #f59e0b;
+  }
+  
+  .diseasedet .upload-text {
+    color: #666;
+    margin-top: 1rem;
+  }
+  
+  /* Recent Results Section */
+  .diseasedet .recent-results-title {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 1.5rem;
+  }
+  
+  /* Grid layout for the results */
+  .diseasedet .results-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1.5rem;
+  }
+  
+  /* Result Cards */
+  .diseasedet .result-card {
+    background-color: #f9fafb;
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .diseasedet .result-image {
+    width: 100%;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  .diseasedet .result-text {
+    font-weight: 500;
+    color: #333;
+    text-align: center;
+    font-size: 1rem;
+  }
+
+/* Global Styles for Croppred.jsx */
+/* .croppred-root {
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+    overflow-x: hidden;
+    font-family: 'Lexend', sans-serif;
+    background-color: #fafcf8;
+  }
+  
+  .croppred-layout-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .croppred-header {
+    display: flex;
+    justify-content: space-between;
+    padding: 1rem 2.5rem;
+    border-bottom: 1px solid #edf3e7;
+  }
+  
+  .croppred-header-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .croppred-icon {
+    width: 2rem;
+    height: 2rem;
+  }
+  
+  .croppred-header h2 {
+    font-size: 1.25rem;
+    font-weight: bold;
+    letter-spacing: -0.015em;
+  }
+  
+  .croppred-header-right {
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+  }
+  
+  .croppred-header-right a {
+    font-size: 0.875rem;
+    font-weight: medium;
+    color: #141b0e;
+  }
+  
+  .croppred-main-content {
+    display: flex;
+    justify-content: center;
+    padding: 2rem 5rem;
+  }
+  
+  .croppred-content-container {
+    max-width: 960px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+  
+  .croppred-title {
+    font-size: 2rem;
+    font-weight: bold;
+    letter-spacing: -0.033em;
+  }
+  
+  .croppred-button-group {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+  }
+  
+  .croppred-button {
+    background-color: #80e619;
+    color: #141b0e;
+    font-size: 1rem;
+    font-weight: bold;
+    padding: 0.75rem 2rem;
+    border-radius: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 10rem;
+  }
+  
+  .croppred-button:hover {
+    background-color: #6fb100;
+  }
+  
+  .croppred-info-text {
+    font-size: 1rem;
+    font-weight: normal;
+    padding: 1rem;
+  }
+  
+  .croppred-examples-title {
+    font-size: 1.375rem;
+    font-weight: bold;
+    letter-spacing: -0.015em;
+  }
+  
+  .croppred-image-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(158px, 1fr));
+    gap: 1rem;
+  }
+  
+  .croppred-image-item {
+    width: 100%;
+    padding-top: 100%;
+    background-size: cover;
+    background-position: center;
+    border-radius: 1rem;
+  } */
+  
+  
