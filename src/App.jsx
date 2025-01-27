@@ -6,7 +6,8 @@ import Disease from "./pages/Disease";
 import Croppred from "./pages/Croppred";
 import SignUp from "./pages/SignUp";
 import SignIn from "./pages/SignIn";
-
+import Weather from "./pages/Weather"
+import NavBar from "./pages/Navbar"
 const App = () => {
   return (
     <Router>
@@ -16,6 +17,8 @@ const App = () => {
         <Route path="/signup" element={<SignUp />} />
         <Route path="/signin" element={<SignIn />} />
         <Route path="/Croppred" element={<Croppred />} />
+        <Route path="/Weather" element={<Weather />} />
+        <Route path="/NavBar" element={<NavBar />} />
       </Routes>
       <ToastContainer />
     </Router>

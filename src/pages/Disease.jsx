@@ -6,15 +6,33 @@ const Disease = () => {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
 
-  const handleImageUpload = (e) => {
+  const handleImageUpload = async (e) => {
     const file = e.target.files[0];
     if (file) {
       setImage(URL.createObjectURL(file));
       setLoading(true);
-      setTimeout(() => {
-        setResult('Powdery Mildew detected on Tomato leaves.');
+
+      const formData = new FormData();
+      formData.append('image', file);
+
+      try {
+        const response = await fetch('https://your-backend-api-url.com/predict', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setResult(data.prediction); 
+        } else {
+          setResult('Error processing the image.');
+        }
+      } catch (error) {
+        console.error('Error during API call:', error);
+        setResult('An error occurred while detecting the disease.');
+      } finally {
         setLoading(false);
-      }, 2000);
+      }
     }
   };
 
@@ -34,13 +52,26 @@ const Disease = () => {
         const photoURL = canvas.toDataURL('image/png');
         setImage(photoURL);
         setLoading(true);
-        setTimeout(() => {
-          setResult('Powdery Mildew detected on Tomato leaves.');
-          setLoading(false);
-        }, 2000);
 
-        // Stop the video stream
-        stream.getTracks().forEach((track) => track.stop());
+        const formData = new FormData();
+        formData.append('image', dataURLtoFile(photoURL));
+
+        fetch('https://your-backend-api-url.com/predict', {
+          method: 'POST',
+          body: formData,
+        })
+          .then(response => response.json())
+          .then(data => {
+            setResult(data.prediction);
+          })
+          .catch(error => {
+            console.error('Error during API call:', error);
+            setResult('An error occurred while detecting the disease.');
+          })
+          .finally(() => {
+            setLoading(false);
+            stream.getTracks().forEach((track) => track.stop());
+          });
       };
 
       const confirmCapture = window.confirm('Click OK to capture the photo.');
@@ -55,59 +86,71 @@ const Disease = () => {
     }
   };
 
+  const dataURLtoFile = (dataURL) => {
+    const arr = dataURL.split(',');
+    const mime = arr[0].match(/:(.*?);/)[1];
+    const bstr = atob(arr[1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n);
+    }
+    return new File([u8arr], 'image.png', { type: mime });
+  };
+
   const handleDragOver = (e) => {
     e.preventDefault();
   };
 
-  const handleDrop = (e) => {
+  const handleDrop = async (e) => {
     e.preventDefault();
     const file = e.dataTransfer.files[0];
     if (file) {
       setImage(URL.createObjectURL(file));
       setLoading(true);
-      setTimeout(() => {
-        setResult('Powdery Mildew detected on Tomato leaves.');
+
+      const formData = new FormData();
+      formData.append('image', file);
+
+      try {
+        const response = await fetch('https://your-backend-api-url.com/predict', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setResult(data.prediction); 
+        } else {
+          setResult('Error processing the image.');
+        }
+      } catch (error) {
+        console.error('Error during API call:', error);
+        setResult('An error occurred while detecting the disease.');
+      } finally {
         setLoading(false);
-      }, 2000);
+      }
     }
   };
 
   return (
-    <div
-      className="w-screen h-screen relative flex flex-col bg-white overflow-x-hidden min-h-screen"
-      style={{ fontFamily: 'Lexend, "Noto Sans", sans-serif' }}
-    >
+    <div className="w-screen h-screen relative flex flex-col bg-white overflow-x-hidden min-h-screen" style={{ fontFamily: 'Lexend, "Noto Sans", sans-serif' }}>
       {/* Header */}
       <header className="flex items-center justify-between w-full border-b border-solid border-[#f2f4f0] px-8 py-4">
         <div className="flex items-center gap-8">
           <div className="flex items-center gap-4 text-[#131811]">
             <div className="size-8">
-              <svg
-                viewBox="0 0 48 48"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  fillRule="evenodd"
-                  clipRule="evenodd"
-                  d="M24 4H6V17.3333V30.6667H24V44H42V30.6667V17.3333H24V4Z"
-                  fill="currentColor"
-                ></path>
+              <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path fillRule="evenodd" clipRule="evenodd" d="M24 4H6V17.3333V30.6667H24V44H42V30.6667V17.3333H24V4Z" fill="currentColor"></path>
               </svg>
             </div>
             <h2 className="text-[#131811] text-xl font-bold">AgroVision AI</h2>
           </div>
         </div>
         <nav className="flex gap-8">
-          <a className="text-[#131811] text-base font-medium" href="#">
-            Home
-          </a>
-          <a className="text-[#131811] text-base font-medium" href="#">
-            Contact Us
-          </a>
-          <a className="text-[#131811] text-base font-medium" href="#">
-            Logout
-          </a>
+          <a className="text-[#131811] text-base font-medium" href="#">Home</a>
+          <a className="text-[#131811] text-base font-medium" href="#">Contact Us</a>
+          <a className="text-[#131811] text-base font-medium" href="#">Logout</a>
         </nav>
       </header>
 
@@ -115,15 +158,12 @@ const Disease = () => {
       <div className="flex flex-1 justify-center items-center w-full py-5 px-4 sm:px-6 md:px-12">
         <div className="flex flex-col items-center w-full max-w-screen-lg gap-6">
           {/* Title */}
-          <h1 className="text-[#141b0e] text-3xl sm:text-4xl lg:text-5xl font-black leading-tight mb-8 text-center">
-            Crop Disease Detection
-          </h1>
+          <h1 className="text-[#141b0e] text-3xl sm:text-4xl lg:text-5xl font-black leading-tight mb-8 text-center">Crop Disease Detection</h1>
 
           {/* Instructions */}
           <p className="description text-gray-600 mb-6 text-center">
             Identify diseases in your crops by uploading images for analysis.
-            Follow the instructions below to submit your images and receive
-            results:
+            Follow the instructions below to submit your images and receive results:
           </p>
           <ul className="instruction-list list-disc list-inside mb-6 text-gray-700 text-left max-w-xl mx-auto">
             <li>Ensure your image is clear and focused on the affected area of the crop.</li>
@@ -133,11 +173,7 @@ const Disease = () => {
           </ul>
 
           {/* Upload Section */}
-          <div
-            className="upload-container text-center mb-6 flex flex-col gap-4"
-            onDragOver={handleDragOver}
-            onDrop={handleDrop}
-          >
+          <div className="upload-container text-center mb-6 flex flex-col gap-4" onDragOver={handleDragOver} onDrop={handleDrop}>
             <div className="flex gap-4">
               <input
                 type="file"
@@ -147,54 +183,32 @@ const Disease = () => {
                 onChange={handleImageUpload}
                 aria-label="Upload image for crop disease detection"
               />
-              <label
-                htmlFor="fileUpload"
-                className="upload-button bg-green-500 text-white font-medium py-2 px-4 rounded-lg cursor-pointer"
-                style={{ display: 'inline-block', width: 'auto', textAlign: 'center' }}
-              >
-                Upload Image
-              </label>
-              <button
-                onClick={handleTakePhoto}
-                className="take-photo-button bg-blue-500 text-white font-medium py-2 px-4 rounded-lg"
-                style={{ display: 'inline-block', width: 'auto', textAlign: 'center' }}
-              >
-                Take Photo
-              </button>
+              <label htmlFor="fileUpload" className="upload-button bg-green-500 text-white font-medium py-2 px-4 rounded-lg cursor-pointer" style={{ display: 'inline-block', width: 'auto', textAlign: 'center' }}>Upload Image</label>
+              <button onClick={handleTakePhoto} className="take-photo-button bg-blue-500 text-white font-medium py-2 px-4 rounded-lg" style={{ display: 'inline-block', width: 'auto', textAlign: 'center' }}>Take Photo</button>
             </div>
-            <p className="upload-text text-gray-500 mt-2">
-              or drag and drop your file here
-            </p>
+            <p className="upload-text text-gray-500 mt-2">or drag and drop your file here</p>
           </div>
 
           {/* Loading Spinner */}
           {loading && (
-            <div className="text-center mb-6">
-              <p className="text-gray-700">Analyzing...</p>
-              <div className="spinner mt-2 text-2xl">🔄</div>
+            <div className="text-center">
+              <p className="text-gray-700">Processing...</p>
+              <div className="spinner mt-4 mx-auto"></div>
             </div>
           )}
 
           {/* Uploaded Image Preview */}
           {image && !loading && (
             <div className="result-container mb-6">
-              <h2 className="recent-results-title text-xl font-semibold text-gray-800 mb-2">
-                Uploaded Image
-              </h2>
-              <img
-                src={image}
-                alt="Uploaded Crop"
-                className="result-image w-full max-w-sm rounded-lg shadow"
-              />
+              <h2 className="recent-results-title text-xl font-semibold text-gray-800 mb-2">Uploaded Image</h2>
+              <img src={image} alt="Uploaded Crop" className="result-image w-full max-w-sm rounded-lg shadow" />
             </div>
           )}
 
           {/* Result Display */}
           {!loading && result && (
             <div className="result-container mb-6">
-              <h2 className="recent-results-title text-xl font-semibold text-gray-800 mb-2">
-                Analysis Result
-              </h2>
+              <h2 className="recent-results-title text-xl font-semibold text-gray-800 mb-2">Analysis Result</h2>
               <div className="result-card bg-gray-100 p-4 rounded-lg shadow">
                 <p className="result-text text-gray-700">{result}</p>
               </div>

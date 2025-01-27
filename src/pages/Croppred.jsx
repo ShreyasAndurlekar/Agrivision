@@ -1,35 +1,68 @@
 import React, { useState } from "react";
 
 const Croppred = () => {
-  const [file, setFile] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState(null);
+    const [file, setFile] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [result, setResult] = useState(null);
+    const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const handleFileUpload = (e) => {
+
+  const handleFileUpload = async (e) => {
     const uploadedFile = e.target.files[0];
     if (uploadedFile) {
       setFile(uploadedFile);
       setLoading(true);
-      
-      // Simulate processing time and result generation
-      setTimeout(() => {
-        // Example: Top 4 crops prediction (this should be replaced with actual logic based on file)
-        setResult([
-          "Wheat",
-          "Rice",
-          "Corn",
-          "Soybean",
-        ]);
-        setLoading(false);
-      }, 2000);
+  
+      // Simulated API call
+      try {
+        const formData = new FormData();
+        formData.append("file", uploadedFile);
+  
+        const response = await fetch("https://your-api-endpoint.com/predict", {
+          method: "POST",
+          body: formData,
+        });
+  
+        const data = await response.json();
+        setResult(data.predictions); // Assuming the response has a 'predictions' array
+      } catch (error) {
+        console.error("Error processing file:", error);
+        alert("Failed to process the file. Please try again.");
+      }
+  
+      setLoading(false);
     }
   };
+  
 
   return (
     <div
       className="w-screen h-screen relative flex flex-col bg-white overflow-x-hidden"
       style={{ fontFamily: "Lexend, 'Noto Sans', sans-serif" }}
     >
+      {/* Sidebar for mobile */}
+       
+       <div
+        className={`fixed left-0 top-0 h-full w-64 bg-white text-[#131811] transform ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} transition-transform duration-300 z-30`}
+        style={{ fontFamily: "Lexend, 'Noto Sans', sans-serif" }} // Apply font style here
+      >
+        <div className="p-6">
+          <h2 className="text-2xl font-semibold" style={{ color: '#f2f4f0' }}>AgroVision AI</h2>
+          <button
+            onClick={() => setSidebarOpen(false)} // Close the sidebar
+            className="text-[#131811] text-3xl absolute top-4 right-4"
+          >
+            &#10005; {/* Cross icon */}
+          </button>
+          <nav className="mt-8 space-y-6">
+            <a href="#" className="block text-xl font-medium" style={{ color: '#f2f4f0' }}>Home</a>
+            <a href="#" className="block text-xl font-medium" style={{ color: '#f2f4f0' }}>Contact Us</a>
+            <a href="#" className="block text-xl font-medium" style={{ color: '#f2f4f0' }}>Logout</a>
+          </nav>
+        </div>
+      </div>
+
+      {/* Main content */}
       <div className="flex flex-col w-full h-full">
         {/* Header */}
         <header className="flex items-center justify-between w-full border-b border-solid border-[#f2f4f0] px-8 py-4">
@@ -52,7 +85,17 @@ const Croppred = () => {
               <h2 className="text-[#131811] text-xl font-bold">AgroVision AI</h2>
             </div>
           </div>
-          <nav className="flex gap-8">
+
+          {/* Mobile menu toggle */}
+          <button
+            className="sm:hidden text-[#131811] text-2xl"
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+          >
+            &#9776;
+          </button>
+
+          {/* Desktop menu */}
+          <nav className="hidden sm:flex gap-8">
             <a className="text-[#131811] text-base font-medium" href="#">
               Home
             </a>
@@ -101,13 +144,12 @@ const Croppred = () => {
               Please upload a soil report PDF or image. It will be processed by our AI for crop prediction.
             </p>
 
-            {/* Loading Spinner */}
             {loading && (
-              <div className="text-center mb-6">
-                <p className="text-gray-700">Processing...</p>
-                <div className="spinner mt-2 text-2xl">🔄</div>
-              </div>
-            )}
+  <div className="text-center">
+    <p className="text-gray-700">Processing...</p>
+    <div className="spinner mt-4 mx-auto"></div>
+  </div>
+)}
 
             {/* Prediction Result */}
             {!loading && result && (
