@@ -136,4 +136,8 @@
       transform: rotate(360deg);
     }
   }
+
+  .swiper-container {
+    height: 300px;
+  }
   
