@@ -1,8 +1,10 @@
-from flask import Flask, render_template, request, send_file, make_response
+from flask import Flask, render_template, request, send_file
 from werkzeug.utils import secure_filename
 import io
 import os
 from flask_cors import CORS
+from PIL import Image, ImageDraw  # For generating random images
+import random  # For random color generation
 
 app = Flask(__name__)
 CORS(app)
@@ -18,6 +20,28 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+def generate_random_image():
+    """
+    Generates a random image using Pillow (PIL).
+    Returns: A BytesIO object containing the image.
+    """
+    # Create a blank image with random background color
+    width, height = 200, 200
+    background_color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+    image = Image.new("RGB", (width, height), background_color)
+    
+    # Draw something on the image (optional)
+    draw = ImageDraw.Draw(image)
+    text = "Random Image"
+    text_color = (255, 255, 255)  # White text
+    draw.text((10, 10), text, fill=text_color)
+    
+    # Save the image to a BytesIO buffer
+    buffer = io.BytesIO()
+    image.save(buffer, format="PNG")
+    buffer.seek(0)  # Move the buffer's cursor to the beginning
+    return buffer
+
 @app.route("/")
 def home():
     return render_template("home.html")
@@ -32,20 +56,18 @@ def upload_file():
         return 'No selected file', 400
     
     if file and allowed_file(file.filename):
-        # Process file in memory
+        # Process file in memory (no changes here)
         file_stream = io.BytesIO(file.read())
         
-        # Return image from memory
-        image_stream = io.BytesIO()
-        with open('images/kash.jpeg', 'rb') as img:
-            image_stream.write(img.read())
-        image_stream.seek(0)
+        # Generate a random image
+        image_stream = generate_random_image()
         
+        # Return the generated image as a response
         return send_file(
             image_stream,
-            mimetype='image/jpeg',
+            mimetype='image/png',  # Use PNG for dynamically generated images
             as_attachment=True,
-            download_name='response.jpg'
+            download_name='random_image.png'
         )
 
 if __name__ == '__main__':
