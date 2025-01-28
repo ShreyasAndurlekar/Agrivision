@@ -7,7 +7,7 @@ import Croppred from "./pages/Croppred";
 import SignUp from "./pages/SignUp";
 import SignIn from "./pages/SignIn";
 import Weather from "./pages/Weather"
-import NavBar from "./pages/Navbar"
+import { NavBar } from "./pages/Navbar"
 const App = () => {
   return (
     <Router>

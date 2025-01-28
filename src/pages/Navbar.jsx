@@ -3,7 +3,7 @@ import { handleLogout } from '../functions/sign';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'; // Import the CSS for toast notifications
 
-const NavBar = () => {
+export const NavBar = () => {  // Add 'export' keyword here
   // Handle logout
   const handleLogoutClick = async () => {
     try {
@@ -56,5 +56,3 @@ const NavBar = () => {
     </header>
   );
 };
-
-export default NavBar;

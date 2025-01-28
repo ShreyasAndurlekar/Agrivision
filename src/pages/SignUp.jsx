@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import { handleEmailSignup, handleGoogleSignup } from '../functions/sign';
 import { toast } from 'react-toastify';
-// import NavBar from './Navbar';
+import { NavBar } from './Navbar';
 
 const SignUp = () => {
   // State for form inputs

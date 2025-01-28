@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { handleEmailLogin, handleGoogleSignup } from '../functions/sign';
 import { toast } from 'react-toastify';
-// import NavBar from './Navbar';
+import { NavBar } from './Navbar';
 
 const SignIn = () => {
   // State for form inputs
