@@ -1,8 +1,11 @@
-from flask import Flask, render_template, request, send_file
+from flask import Flask, render_template, request, send_file, make_response
 from werkzeug.utils import secure_filename
+import io
 import os
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 # Configure upload folder
 UPLOAD_FOLDER = 'uploads'
@@ -29,16 +32,21 @@ def upload_file():
         return 'No selected file', 400
     
     if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        file.save(filepath)
+        # Process file in memory
+        file_stream = io.BytesIO(file.read())
         
-        # Placeholder: Process PDF and generate image
-        # For demo, we'll just return a sample image
-        # In reality, you'd process the PDF here
+        # Return image from memory
+        image_stream = io.BytesIO()
+        with open('images/kash.jpeg', 'rb') as img:
+            image_stream.write(img.read())
+        image_stream.seek(0)
         
-        return send_file('images/kash.jpeg', 
-                        mimetype='image/jpeg')
+        return send_file(
+            image_stream,
+            mimetype='image/jpeg',
+            as_attachment=True,
+            download_name='response.jpg'
+        )
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

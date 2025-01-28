@@ -92,4 +92,3 @@ if data:
     else:
         print("No data available for the given range.")
 else:
-    print("No data available for the given coordinates.")
