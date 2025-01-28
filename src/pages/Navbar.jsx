@@ -2,8 +2,9 @@ import React from 'react';
 import { handleLogout } from '../functions/sign';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'; // Import the CSS for toast notifications
+import Contact from './Contact';
 
-const NavBar = () => {
+export const NavBar = () => {  // Add 'export' keyword here
   // Handle logout
   const handleLogoutClick = async () => {
     try {
@@ -40,10 +41,10 @@ const NavBar = () => {
         </div>
       </div>
       <nav className="flex gap-8">
-        <a className="text-[#131811] text-base font-medium" href="#">
+        <a className="text-[#131811] text-base font-medium" href="#" onClick={() => navigate("/")}>
           Home
         </a>
-        <a className="text-[#131811] text-base font-medium" href="#">
+        <a className="text-[#131811] text-base font-medium" href="#" onClick={() => navigate("/Contact")}>
           Contact Us
         </a>
         <a
@@ -56,5 +57,3 @@ const NavBar = () => {
     </header>
   );
 };
-
-export default NavBar;

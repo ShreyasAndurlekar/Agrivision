@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import '../App.css';
+import { useNavigate } from "react-router-dom";
 
 const Disease = () => {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const navigate = useNavigate();
+
   const [image, setImage] = useState(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
@@ -181,10 +184,10 @@ const Disease = () => {
         </button>
         {/* Desktop menu */}
         <nav className="hidden sm:flex gap-8">
-          <a className="text-[#131811] text-base font-medium" href="#">
+          <a className="text-[#131811] text-base font-medium" href="#" onClick={() => navigate("/")}>
             Home
           </a>
-          <a className="text-[#131811] text-base font-medium" href="#">
+          <a className="text-[#131811] text-base font-medium" href="#" onClick={() => navigate("/Contact")}>
             Contact Us
           </a>
           <a className="text-[#131811] text-base font-medium" href="#">
