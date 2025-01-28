@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, send_file
+from flask import Flask, render_template, request, send_file, jsonify
 from werkzeug.utils import secure_filename
 import io
 import os
@@ -7,7 +7,13 @@ from PIL import Image, ImageDraw  # For generating random images
 import random  # For random color generation
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={
+    r"/*": {
+        "origins": "*",  # Allow all origins
+        "methods": ["POST", "OPTIONS"],  # Allow POST and preflight
+        "allow_headers": ["Content-Type"]
+    }
+})
 
 # Configure upload folder
 UPLOAD_FOLDER = 'uploads'
@@ -46,29 +52,30 @@ def generate_random_image():
 def home():
     return render_template("home.html")
 
-@app.route("/upload", methods=['POST'])
+@app.route("/upload", methods=['POST', 'OPTIONS'])
 def upload_file():
+    if request.method == 'OPTIONS':
+        # Handle preflight request
+        response = make_response()
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
+        response.headers.add('Access-Control-Allow-Methods', 'POST')
+        return response
+
     if 'file' not in request.files:
-        return 'No file part', 400
+        return jsonify({'error': 'No file part'}), 400
     
     file = request.files['file']
     if file.filename == '':
-        return 'No selected file', 400
-    
-    if file and allowed_file(file.filename):
-        # Process file in memory (no changes here)
-        file_stream = io.BytesIO(file.read())
-        
-        # Generate a random image
-        image_stream = generate_random_image()
-        
-        # Return the generated image as a response
-        return send_file(
-            image_stream,
-            mimetype='image/png',  # Use PNG for dynamically generated images
-            as_attachment=True,
-            download_name='random_image.png'
-        )
+        return jsonify({'error': 'No selected file'}), 400
+
+    # Process file and return image
+    image_path = 'images/kash.jpeg'
+    return send_file(
+        image_path,
+        mimetype='image/jpeg',
+        as_attachment=False  # This will display instead of download
+    )
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
