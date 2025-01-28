@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import "../App.css";
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
 const Welcome = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const navigate = useNavigate(); // Create navigate function
 
   return (
     <div
@@ -83,21 +85,24 @@ const Welcome = () => {
           <div className="flex flex-col flex-1 w-full max-w-[900px] px-4">
             <Banner />
             <div className="flex overflow-x-auto w-full gap-6 [-ms-scrollbar-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              <Card
-                title="Detect crop diseases"
-                description="Identify and diagnose diseases in your crops using Agri AI's technology."
-                imageUrl="https://cdn.usegalileo.ai/sdxl10/1335d8be-6160-4bd0-b4b4-b6a29a3f43b3.png"
-              />
-              <Card
-                title="Predict crop yield"
-                description="Get insights into your crop yield with our advanced prediction models."
-                imageUrl="https://cdn.usegalileo.ai/sdxl10/d1cb9829-f26b-41f2-88d0-e072ccf1d9f0.png"
-              />
-              <Card
-                title="Forecast weather"
-                description="Plan ahead with our accurate weather forecasts for your fields."
-                imageUrl="https://cdn.usegalileo.ai/sdxl10/a83fd6db-3b68-4fb7-b378-1501506d2455.png"
-              />
+            <Card
+  title="Detect crop diseases"
+  description="Identify and diagnose diseases in your crops using Agri AI's technology."
+  imageUrl="https://cdn.usegalileo.ai/sdxl10/1335d8be-6160-4bd0-b4b4-b6a29a3f43b3.png"
+  onClick={() => navigate('/Disease')} // Navigate to Disease page
+/>
+<Card
+  title="Predict crop yield"
+  description="Get insights into your crop yield with our advanced prediction models."
+  imageUrl="https://cdn.usegalileo.ai/sdxl10/d1cb9829-f26b-41f2-88d0-e072ccf1d9f0.png"
+  onClick={() => navigate('/Croppred')} // Navigate to Croppred page
+/>
+<Card
+  title="Forecast weather"
+  description="Plan ahead with our accurate weather forecasts for your fields."
+  imageUrl="https://cdn.usegalileo.ai/sdxl10/a83fd6db-3b68-4fb7-b378-1501506d2455.png"
+  onClick={() => navigate('/Weather')} // Navigate to Weather page
+/>
             </div>
           </div>
         </div>
@@ -133,11 +138,14 @@ const Banner = () => (
   </div>
 );
 
-const Card = ({ title, description, imageUrl }) => (
-  <div className="flex flex-col gap-4 bg-white rounded-lg shadow-md min-w-[200px] w-full overflow-hidden">
+const Card = ({ title, description, imageUrl, onClick }) => (
+  <div
+    className="flex flex-col gap-4 bg-white rounded-lg shadow-md min-w-[200px] w-full overflow-hidden cursor-pointer"
+    onClick={onClick} // Add onClick handler
+  >
     <div
       className="w-full h-[180px] bg-cover bg-center rounded-t-lg"
-      style={{ backgroundImage: `url(${imageUrl})` }}
+      style={{ backgroundImage: `url(${imageUrl})` }} // Corrected style attribute
     ></div>
     <div className="p-4">
       <h3 className="text-[#141b0e] text-base font-medium mb-2 whitespace-normal">{title}</h3>

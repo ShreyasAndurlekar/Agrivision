@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { handleEmailLogin, handleGoogleSignup } from '../functions/sign';
 import { toast } from 'react-toastify';
-import NavBar from './Navbar';
+// import NavBar from './Navbar';
 
 const SignIn = () => {
   // State for form inputs
@@ -39,7 +39,7 @@ const SignIn = () => {
       }}
     >
       <div className="layout-container flex h-full grow flex-col items-center justify-center">
-      <NavBar />
+      {/* <NavBar /> */}
         <div className="flex flex-1 justify-center items-center w-full py-5">
           <div className="layout-content-container flex flex-col w-[512px] max-w-[512px] py-5 flex-1 items-center">
             <h3 className="text-[#111418] tracking-light text-2xl font-bold leading-tight text-center pb-2 pt-5">

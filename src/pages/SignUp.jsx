@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import { handleEmailSignup, handleGoogleSignup } from '../functions/sign';
 import { toast } from 'react-toastify';
-import NavBar from './Navbar';
+// import NavBar from './Navbar';
 
 const SignUp = () => {
   // State for form inputs
@@ -9,6 +10,8 @@ const SignUp = () => {
   const [password, setPassword] = useState('');
   const [username, setUsername] = useState('');
   const [agreeToTerms, setAgreeToTerms] = useState(false);
+
+  const navigate = useNavigate(); // Create navigate function
 
   // Handle email/password signup
   const handleEmailSignUpClick = async () => {
@@ -46,7 +49,7 @@ const SignUp = () => {
       }}
     >
       <div className="layout-container flex h-full grow flex-col items-center justify-center">
-       <NavBar />
+       {/* <NavBar /> */}
         <div className="flex flex-1 justify-center items-center w-full py-5">
           <div className="layout-content-container flex flex-col w-[512px] max-w-[512px] py-5 flex-1 items-center">
             <h3 className="text-[#111418] tracking-light text-2xl font-bold leading-tight text-center pb-2 pt-5">
@@ -145,7 +148,10 @@ const SignUp = () => {
               Already have an account?
             </p>
             <div className="w-full max-w-[480px] px-4 py-3">
-              <button className="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-xl h-10 px-4 bg-[#f0f2f4] text-[#111418] text-sm font-bold leading-normal tracking-[0.015em]">
+              <button
+                className="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-xl h-10 px-4 bg-[#f0f2f4] text-[#111418] text-sm font-bold leading-normal tracking-[0.015em]"
+                onClick={() => navigate('/signin')} // Navigate to SignIn page
+              >
                 <span className="truncate">Log in</span>
               </button>
             </div>

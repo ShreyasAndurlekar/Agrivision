@@ -33,7 +33,20 @@ const Croppred = () => {
       setLoading(false);
     }
   };
-  
+
+//      // Simulate processing time and result generation
+//      setTimeout(() => {
+//         // Example: Top 4 crops prediction (this should be replaced with actual logic based on file)
+//         setResult([
+//           "Wheat",
+//           "Rice",
+//           "Corn",
+//           "Soybean",
+//         ]);
+//         setLoading(false);
+//       }, 2000);
+//     }
+//   };
 
   return (
     <div
