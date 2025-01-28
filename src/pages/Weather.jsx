@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react'; 
 import farmBg from '../images/farm1.jpeg';  // Ensure this path is correct
-import { Footer } from './Footer';  
+import {Footer} from './Footer';  
 import { NavBar } from './Navbar';
+import { useNavigate } from "react-router-dom";
 
 const Weather = () => {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const navigate = useNavigate();
   const [location, setLocation] = useState({ latitude: null, longitude: null });
   const [forecast, setForecast] = useState([]);
   const [error, setError] = useState(null);

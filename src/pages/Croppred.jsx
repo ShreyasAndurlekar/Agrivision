@@ -1,10 +1,13 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Croppred = () => {
+    const [sidebarOpen, setSidebarOpen] = useState(false);
+    const navigate = useNavigate();
+
     const [file, setFile] = useState(null);
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState(null);
-    const [sidebarOpen, setSidebarOpen] = useState(false);
 
 
   const handleFileUpload = async (e) => {
@@ -114,10 +117,10 @@ const Croppred = () => {
 
           {/* Desktop menu */}
           <nav className="hidden sm:flex gap-8">
-            <a className="text-[#131811] text-base font-medium" href="#">
+            <a className="text-[#131811] text-base font-medium" href="#" onClick={() => navigate("/")}>
               Home
             </a>
-            <a className="text-[#131811] text-base font-medium" href="#">
+            <a className="text-[#131811] text-base font-medium" href="#" onClick={() => navigate("/Contact")}>
               Contact Us
             </a>
             <a className="text-[#131811] text-base font-medium" href="#">
