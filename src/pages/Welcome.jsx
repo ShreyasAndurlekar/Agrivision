@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import "../App.css";
 import { useNavigate } from "react-router-dom";
 import { Footer } from "./Footer";
+import ChatbotPopup from "./ChatbotPopup";
 
 const Welcome = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -41,9 +42,10 @@ const Welcome = () => {
       document.querySelector('.cards-container').scrollBy({ left: -300, behavior: 'smooth' });
     }
   };
-
+  
 
   return (
+    
     <div
       className="w-screen h-screen relative flex flex-col bg-white overflow-x-hidden"
       style={{ fontFamily: 'Lexend, "Noto Sans", sans-serif' }}
@@ -125,8 +127,13 @@ const Welcome = () => {
             <div className="relative flex items-center w-full">
               {/* Navigation Arrows */}
               <button
-                className="absolute left-0 z-10 p-2 text-white bg-[#73974e] rounded-full hover:bg-[#5d7d3c] transform -translate-y-1/2 top-1/3"
+                className={`absolute left-0 z-10 p-2 rounded-full transform -translate-y-1/2 top-1/3 ${
+                  currentIndex === 0
+                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                    : "bg-[#73974e] text-white hover:bg-[#5d7d3c]"
+                }`}
                 onClick={prevCard}
+                disabled={currentIndex === 0}
               >
                 &#8592;
               </button>
@@ -152,8 +159,13 @@ const Welcome = () => {
                 ))}
               </div>
               <button
-                className="absolute right-0 z-10 p-2 text-white bg-[#73974e] rounded-full hover:bg-[#5d7d3c] transform -translate-y-1/2 top-1/3"
+                className={`absolute right-0 z-10 p-2 rounded-full transform -translate-y-1/2 top-1/3 ${
+                  currentIndex === cards.length - 1
+                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                    : "bg-[#73974e] text-white hover:bg-[#5d7d3c]"
+                }`}
                 onClick={nextCard}
+                disabled={currentIndex === cards.length - 1}
               >
                 &#8594;
               </button>
@@ -173,11 +185,12 @@ const Welcome = () => {
             </div>
           </div>
         </div>
-
+        <ChatbotPopup />
         {/* Footer */}
         <Footer />
       </div>
     </div>
+    
   );
 };
 

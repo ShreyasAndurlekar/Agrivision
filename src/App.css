@@ -30,3 +30,9 @@
   .rounded-image {
     border-radius: 12px; /* Adjust the radius as needed */
   }
+
+  .disabled-nav {
+    opacity: 0.5;
+    cursor: not-allowed;
+    color: gray;
+  }

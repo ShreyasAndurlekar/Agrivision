@@ -10,6 +10,7 @@ import Weather from "./pages/Weather"
 import Contact from "./pages/Contact";
 import { NavBar } from "./pages/Navbar"
 import GTranslate from "./GTranslate";
+import ChatbotPopup from "./pages/ChatbotPopup";
 const App = () => {
   return (
     <Router>
@@ -23,6 +24,7 @@ const App = () => {
         <Route path="/Weather" element={<Weather />} />
         <Route path="/NavBar" element={<NavBar />} />
         <Route path="/Contact" element={<Contact />} />
+        <Route path="/Chatbotpopup" element={<ChatbotPopup />} />
       </Routes>
       <ToastContainer />
     </Router>
