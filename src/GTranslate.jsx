@@ -7,7 +7,7 @@ const GTranslate = () => {
       default_language: "en",
       detect_browser_language: true,
       wrapper_selector: ".gtranslate_wrapper",
-      languages: ["en", "hi", "mr", "kn", "gu", "bn", "ar", "ml", "pa", "sd", "ta", "te", "ur"],
+      languages: ["ar", "bn", "en", "gu", "hi", "kn", "ml", "mr", "pa", "sd", "ta", "te", "ur"],
       native_language_names: true,
     };
 
