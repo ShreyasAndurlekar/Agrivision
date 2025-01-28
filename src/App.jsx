@@ -9,9 +9,11 @@ import SignIn from "./pages/SignIn";
 import Weather from "./pages/Weather"
 import Contact from "./pages/Contact";
 import { NavBar } from "./pages/Navbar"
+import GTranslate from "./GTranslate";
 const App = () => {
   return (
     <Router>
+      <GTranslate />
       <Routes>
         <Route path="/" element={<Welcome />} />
         <Route path="/disease" element={<Disease />} />

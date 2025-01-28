@@ -35,7 +35,7 @@ export const Footer = () => {
               <path d="M22.675 0h-21.35C.598 0 0 .598 0 1.325v21.351C0 23.403.598 24 1.325 24h11.495v-9.294H9.691V11.08h3.129V8.413c0-3.1 1.894-4.788 4.658-4.788 1.325 0 2.464.099 2.794.143v3.24h-1.918c-1.505 0-1.796.715-1.796 1.763v2.311h3.59l-.467 3.626h-3.123V24h6.127c.728 0 1.325-.598 1.325-1.324V1.325C24 .598 23.403 0 22.675 0z" />
             </svg>
           </a>
-          <a href="#" aria-label="Twitter" className="hover:text-[#80e619]">
+          <a href="#" aria-label="X" className="hover:text-[#80e619]">
             <svg
               xmlns="http://www.w3.org/2000/svg" 
               fill="currentColor"
