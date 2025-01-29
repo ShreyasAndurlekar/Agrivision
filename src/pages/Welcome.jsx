@@ -6,7 +6,6 @@ import ChatbotPopup from "./ChatbotPopup";
 
 const Welcome = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [currentIndex, setCurrentIndex] = useState(0);
   const navigate = useNavigate();
 
   const cards = [
@@ -29,23 +28,8 @@ const Welcome = () => {
       onClick: () => navigate("/Weather"),
     },
   ];
-  const nextCard = () => {
-    if (currentIndex < cards.length - 1) {
-      setCurrentIndex((prevIndex) => prevIndex + 1);
-      document.querySelector('.cards-container').scrollBy({ left: 300, behavior: 'smooth' });
-    }
-  };
-  
-  const prevCard = () => {
-    if (currentIndex > 0) {
-      setCurrentIndex((prevIndex) => prevIndex - 1);
-      document.querySelector('.cards-container').scrollBy({ left: -300, behavior: 'smooth' });
-    }
-  };
-  
 
   return (
-    
     <div
       className="w-screen h-screen relative flex flex-col bg-white overflow-x-hidden"
       style={{ fontFamily: 'Lexend, "Noto Sans", sans-serif' }}
@@ -130,63 +114,21 @@ const Welcome = () => {
         <div className="flex flex-1 justify-center py-5 w-full">
           <div className="flex flex-col flex-1 w-full max-w-[900px] px-4">
             <Banner />
-            <div className="relative flex items-center w-full">
-              {/* Navigation Arrows */}
-              <button
-                className={`absolute left-0 z-10 p-2 rounded-full transform -translate-y-1/2 top-1/3 ${
-                  currentIndex === 0
-                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                    : "bg-[#73974e] text-white hover:bg-[#5d7d3c]"
-                }`}
-                onClick={prevCard}
-                disabled={currentIndex === 0}
-              >
-                &#8592;
-              </button>
-              <div className="cards-container flex items-center w-full overflow-x-auto scroll-snap-type-x-mandatory">
-                {cards.map((card, index) => (
-                  <div
-                    key={index}
-                    className={`card flex-shrink-0 w-full sm:w-1/2 md:w-1/3 transition-transform transform origin-center ${
-                      index === currentIndex ? "scale-105" : "scale-100"
-                    }`}
-                    onClick={card.onClick}
-                  >
-                    <div className="flex flex-col items-center bg-white shadow-md rounded-lg cursor-pointer">
-                      <div className="w-full h-48 overflow-hidden rounded-t-lg"> {/* Add overflow-hidden here */}
-                        <img src={card.imageUrl} alt={card.title} className="w-full h-full object-cover rounded-image" />
-                      </div>
-                      <div className="p-4">
-                        <h3 className="text-lg font-bold text-[#131811]">{card.title}</h3>
-                        <p className="text-sm text-gray-600">{card.description}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <button
-                className={`absolute right-0 z-10 p-2 rounded-full transform -translate-y-1/2 top-1/3 ${
-                  currentIndex === cards.length - 1
-                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                    : "bg-[#73974e] text-white hover:bg-[#5d7d3c]"
-                }`}
-                onClick={nextCard}
-                disabled={currentIndex === cards.length - 1}
-              >
-                &#8594;
-              </button>
-            </div>
-
-            {/* Dots Indicator */}
-            <div className="flex justify-center mt-4 gap-2">
-              {cards.map((_, index) => (
-                <button
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 w-full">
+              {cards.map((card, index) => (
+                <div
                   key={index}
-                  className={`w-2 h-2 rounded-full ${
-                    index === currentIndex ? "bg-[#73974e]" : "bg-gray-300"
-                  }`}
-                  onClick={() => setCurrentIndex(index)}
-                ></button>
+                  className="flex flex-col items-center bg-white shadow-md rounded-lg cursor-pointer"
+                  onClick={card.onClick}
+                >
+                  <div className="w-full h-48 overflow-hidden rounded-t-lg">
+                    <img src={card.imageUrl} alt={card.title} className="w-full h-full object-cover rounded-image" />
+                  </div>
+                  <div className="p-4">
+                    <h3 className="text-lg font-bold text-[#131811]">{card.title}</h3>
+                    <p className="text-sm text-gray-600">{card.description}</p>
+                  </div>
+                </div>
               ))}
             </div>
           </div>
@@ -196,7 +138,6 @@ const Welcome = () => {
         <Footer />
       </div>
     </div>
-    
   );
 };
 
@@ -223,11 +164,5 @@ const Banner = () => (
     </div>
   </div>
 );
-
-// const Footer = () => (
-//   <footer className="py-4 bg-[#73974e] text-white text-center text-sm">
-//     © 2025 AgroVision AI. All rights reserved.
-//   </footer>
-// );
 
 export default Welcome;
