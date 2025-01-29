@@ -1,11 +1,5 @@
-!apt-get update
-!apt-get install -y tesseract-ocr
-!pip install pytesseract pillow transformers torch scikit-learn pandas numpy matplotlib requests plotly flask
-
-from datetime import datetime, timedelta
+from datetime import datetime
 from PIL import Image
-import pytesseract
-import re
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
@@ -13,13 +7,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 import joblib
 import matplotlib.pyplot as plt
-import plotly.express as px
-import plotly.graph_objects as go
 import requests
-from flask import Flask, request, render_template, send_file
 
-# Set the tesseract command path
-pytesseract.pytesseract.tesseract_cmd = r'/usr/bin/tesseract'
 
 # Function to fetch seasonal weather data from the API
 def fetch_seasonal_data(latitude, longitude):
@@ -35,46 +24,20 @@ def fetch_seasonal_data(latitude, longitude):
 def convert_rainfall_value(rainfall_value):
     return rainfall_value * 1000
 
-# Function to perform OCR on image
-def ocr_image(image_path):
-    image = Image.open(image_path)
-    text = pytesseract.image_to_string(image)
-    return text
-
-# Function to extract soil data using regular expressions
-def extract_soil_data(ocr_text):
-    patterns = {
-        'Nitrogen': r'(Available Nitrogen|Nitrogen|N)\s*\(.*?\)\s*(\d+)\s*(kg/ha|mg-N/kg)',
-        'Phosphorus': r'(Available Phosphorus|Phosphorus|P)\s*\(.*?\)\s*(\d+)\s*(kg/ha|mg-N/kg)',
-        'Potassium': r'(Available Potassium|Potassium|K)\s*\(.*?\)\s*(\d+)\s*(kg/ha|mg-N/kg)',
-        'pH': r'(pH)\s*\(.*?\)\s*(\d+(\.\d+)?)'
+# Function to get soil data using default values
+def get_soil_data():
+    return {
+        'Nitrogen': 5.29,
+        'Phosphorus': 542, 
+        'Potassium': 3147,
+        'Magnesium': 146,
+        'Calcium': 528,
+        'Manganese': 5.46,
+        'Iron': 2.02,
+        'Copper': 0.487,
+        'Zinc': 0.487,
+        'pH': 3.5
     }
-    extracted_data = {}
-    units = {}
-    for nutrient, pattern in patterns.items():
-        match = re.search(pattern, ocr_text, re.IGNORECASE)
-        if match:
-            extracted_data[nutrient] = float(match.group(2)) if nutrient == 'pH' else int(match.group(2))
-            if nutrient != 'pH':
-                units[nutrient] = match.group(3)
-    
-    if 'pH' not in extracted_data:
-        extracted_data['pH'] = 6.5  # Default pH value
-    
-    return extracted_data, units
-
-# Function to validate soil data
-def validate_soil_data(soil_data, units):
-    if soil_data is None:
-        print("Error: Soil data is None.")
-        return None
-    for key in soil_data:
-        if key != 'pH':  # Skip pH conversion
-            if units[key] == 'kg/ha':
-                soil_data[key] = soil_data[key] * (1000 / 1500)  # Convert kg/ha to mg-N/kg
-            elif units[key] == 'mg-N/kg':
-                soil_data[key] = soil_data[key]  # Already in mg-N/kg
-    return soil_data
 
 # Class to handle crop recommendation model
 class CropRecommendationModel:
@@ -84,10 +47,10 @@ class CropRecommendationModel:
         self.scaler = None
         self.unique_crops = None
 
-    def load_dataset(self, file_path):
+    def load_dataset_from_drive(self, file_path):
         try:
             dataset = pd.read_csv(file_path)
-            print("Dataset loaded successfully!")
+            print("Dataset loaded successfully.")
             return dataset
         except Exception as e:
             print(f"Error loading dataset: {e}")
@@ -118,9 +81,9 @@ class CropRecommendationModel:
 
     def save_model(self, model_components, save_path):
         joblib.dump(model_components, save_path)
-        print(f"Model saved to {save_path}")
+        print("Model saved successfully.")
 
-# Class to handle crop recommendations based on the model
+# Class to handle crop recommendations
 class CropRecommendationPredictor:
     def __init__(self, model_components):
         self.model_rf = model_components['model_rf']
@@ -160,55 +123,142 @@ class CropRecommendationPredictor:
         return top_4_crops
 
     def visualize_recommendations(self, recommendations):
-        # Pie Chart
         plt.figure(figsize=(10, 6))
-        plt.pie(recommendations, labels=recommendations.index, autopct='%1.1f%%', startangle=140)
+        plt.pie(recommendations, labels=recommendations.index, autopct='%1.1f%%')
         plt.title('Crop Yield Potential')
         plt.axis('equal')
         plt.tight_layout()
-        plt.savefig('crop_yield_potential_pie_chart.png')
-        plt.show()
+        plt.savefig('crop_yield_potential.png')  # Save the figure as an image file
+        plt.close()  # Close the figure to free up memory
 
-        # Bar Chart
-        fig = px.bar(recommendations, x=recommendations.index, y=recommendations.values, labels={'x': 'Crop', 'y': 'Yield Potential (%)'}, title='Crop Yield Potential Comparison')
-        fig.update_layout(xaxis_title='Crop', yaxis_title='Yield Potential (%)')
-        fig.write_image('crop_yield_potential_bar_chart.png')
-        fig.show()
+# Streamlit app
+def dothething(nitrogen, phosphorus, potassium, 
+              magnesium, calcium, manganese,
+              iron, copper, zinc, ph):
+    
+    # Input latitude and longitude
+    latitude = 19.0760
+    longitude = 72.8777
 
-# Function to run the Flask app
-def run_flask_app():
-    app = Flask(__name__)
+    # Create soil_data dictionary from parameters
+    soil_data = {
+        'Nitrogen': nitrogen,
+        'Phosphorus': phosphorus, 
+        'Potassium': potassium,
+        'Magnesium': magnesium,
+        'Calcium': calcium,
+        'Manganese': manganese,
+        'Iron': iron,
+        'Copper': copper,
+        'Zinc': zinc,
+        'pH': ph
+    }
 
-    @app.route('/')
-    def index():
-        return render_template('index.html')
+    # Fetch seasonal data for the next 183 days
+    
+    seasonal_data = fetch_seasonal_data(latitude, longitude)
+    
+    if seasonal_data:
+            # Extract all timestamps from the data
+            times = seasonal_data['six_hourly']['time']
+            # Convert timestamps to datetime objects
+            time_dates = [datetime.strptime(time, "%Y-%m-%dT%H:%M") for time in times]
 
-    @app.route('/predict', methods=['POST'])
-    def predict():
-        data = request.form
+            # Group data by month
+            monthly_data = {}
+            for i, time_date in enumerate(time_dates):
+                month_key = time_date.strftime("%Y-%m")  # Group by year and month (e.g., "2023-10")
+
+                if month_key not in monthly_data:
+                    monthly_data[month_key] = {
+                        "temps": [],
+                        "humidity": [],
+                        "rainfall": []
+                    }
+
+                # Extract temperature, humidity, and rainfall for the current timestamp
+                for member in ['temperature_2m_member01', 'temperature_2m_member02', 'temperature_2m_member03', 'temperature_2m_member04']:
+                    temp = seasonal_data['six_hourly'][member][i]
+                    if temp is not None:
+                        monthly_data[month_key]["temps"].append(temp)
+
+                for member in ['relative_humidity_2m_member01', 'relative_humidity_2m_member02', 'relative_humidity_2m_member03', 'relative_humidity_2m_member04']:
+                    humid = seasonal_data['six_hourly'][member][i]
+                    if humid is not None:
+                        monthly_data[month_key]["humidity"].append(humid)
+
+                for member in ['precipitation_member01', 'precipitation_member02', 'precipitation_member03', 'precipitation_member04']:
+                    rain = seasonal_data['six_hourly'][member][i]
+                    if rain is not None:
+                        monthly_data[month_key]["rainfall"].append(convert_rainfall_value(rain))  # Multiply rainfall by 1000
+
+            # Calculate monthly averages
+            monthly_averages = {}
+            for month_key, values in monthly_data.items():
+                avg_temp = sum(values["temps"]) / len(values["temps"]) if values["temps"] else 0
+                avg_humidity = sum(values["humidity"]) / len(values["humidity"]) if values["humidity"] else 0
+                avg_rainfall = sum(values["rainfall"]) / len(values["rainfall"]) if values["rainfall"] else 0
+
+                monthly_averages[month_key] = {
+                    "avg_temp": avg_temp,
+                    "avg_humidity": avg_humidity,
+                    "avg_rainfall": avg_rainfall
+                }
+
+            # Calculate the average of the monthly averages
+            num_months = len(monthly_averages)
+            if num_months > 0:
+                avg_of_avg_temp = sum(month["avg_temp"] for month in monthly_averages.values()) / num_months
+                avg_of_avg_humidity = sum(month["avg_humidity"] for month in monthly_averages.values()) / num_months
+                avg_of_avg_rainfall = sum(month["avg_rainfall"] for month in monthly_averages.values()) / num_months
+
+                '''
+                st.write(f"Average of Monthly Averages (for the next 183 days):")
+                st.write(f"Temperature: {avg_of_avg_temp:.2f} °C")
+                st.write(f"Humidity: {avg_of_avg_humidity:.2f} %")
+                st.write(f"Rainfall: {avg_of_avg_rainfall:.2f} mm/6h")'''
+            else:
+                '''st.write("No data available for the given range.")'''
+    else:
+            '''st.write("No data available for the given coordinates.")'''
+
+    # Get soil data using default values instead of OCR
+    print("Soil Data:", soil_data)
+
+    # Load and train crop recommendation model
+    recommender = CropRecommendationModel()
+    dataset_path = 'recommend_vision.csv'  # Path to your dataset
+    dataset = recommender.load_dataset_from_drive(dataset_path)
+    if dataset is not None:
+        model_components = recommender.train_model(dataset)
+        save_path = 'crop_recommendation_model.pkl'  # Path to save the model
+        recommender.save_model(model_components, save_path)
+
+        # Define input data
         input_data = {
-            'N': float(data['N']),
-            'P': float(data['P']),
-            'K': float(data['K']),
-            'temperature': float(data['temperature']),
-            'humidity': float(data['humidity']),
-            'ph': float(data['ph']),
-            'rainfall': float(data['rainfall'])
+            'N': soil_data['Nitrogen'],
+            'P': soil_data['Phosphorus'],
+            'K': soil_data['Potassium'],
+            'temperature': avg_of_avg_temp,
+            'humidity': avg_of_avg_humidity,
+            'ph': soil_data['pH'],
+            'rainfall': avg_of_avg_rainfall
         }
+        print("Input Data for Prediction:", input_data)
 
-        # Load the model components from the local system
-        model_components = joblib.load('crop_recommendation_model.pkl')
+        # Make predictions
         predictor = CropRecommendationPredictor(model_components)
-        dataset = pd.read_csv('recommend_vision.csv')
-
         top_4_crops = predictor.get_crop_recommendations(input_data, dataset)
-        
-        # Generate visualizations
+        print("\nTop 4 Crop Recommendations:")
+        for crop, score in top_4_crops.items():
+            print(f"{crop}: {score:.2f}% yield potential")
+
+        # Visualize recommendations
         predictor.visualize_recommendations(top_4_crops)
-        
-        return render_template('result.html', crops=top_4_crops.to_dict(), img_pie='crop_yield_potential_pie_chart.png', img_bar='crop_yield_potential_bar_chart.png')
+    else:
+        print("Failed to load dataset.")
 
-    app.run(debug=True)
-
-# Run the Flask app
-run_flask_app()
+# Example usage:
+dothething(nitrogen=5.29, phosphorus=542, potassium=3147,
+          magnesium=146, calcium=528, manganese=5.46,
+          iron=2.02, copper=0.487, zinc=0.487, ph=3.5)
