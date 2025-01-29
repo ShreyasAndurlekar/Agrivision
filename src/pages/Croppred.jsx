@@ -11,16 +11,16 @@ const Recommendations = ({ recommendations, image }) => {
   };
 
   return (
-    <div>
-      <h2>Recommendations:</h2>
-      <ul>
+    <div style={{ textAlign: 'center' }}>
+      <h2 style={{ fontSize: '24px', marginBottom: '20px' }}>Recommendations:</h2>
+      <ul style={{ listStyleType: 'none', padding: 0, fontSize: '20px' }}>
         {Object.entries(recommendations).map(([crop, percentage]) => (
-          <li key={crop}>
+          <li key={crop} style={{ marginBottom: '10px' }}>
             {emojis[crop]} {crop}: {percentage}
           </li>
         ))}
       </ul>
-      {image && <img src={`data:image/png;base64,${image}`} alt="Soil Data" />}
+      {image && <img src={`data:image/png;base64,${image}`} alt="Soil Data" style={{ maxWidth: '100%', height: 'auto', marginTop: '20px' }} />}
     </div>
   );
 };
