@@ -48,10 +48,6 @@ const Weather = () => {
       readForecastAloud(forecast);
       hasReadAloud.current = true; // Mark as read
     }
-    return () => {
-      console.log("Stopping speech on page change.");
-      window.speechSynthesis.cancel();
-    };
   }, [forecast]); // Run only when forecast changes
 
   const processForecastData = (forecastList) => {

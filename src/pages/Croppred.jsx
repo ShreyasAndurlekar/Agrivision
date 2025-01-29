@@ -1,5 +1,29 @@
-import React, { useState, useEffect, useRef } from "react"; // Import useEffect
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from 'axios';
+
+const Recommendations = ({ recommendations, image }) => {
+  const emojis = {
+    coconut: '🥥',
+    mango: '🥭',
+    pigeonpeas: '🌱',
+    pomegranate: '🍎'
+  };
+
+  return (
+    <div>
+      <h2>Recommendations:</h2>
+      <ul>
+        {Object.entries(recommendations).map(([crop, percentage]) => (
+          <li key={crop}>
+            {emojis[crop]} {crop}: {percentage}
+          </li>
+        ))}
+      </ul>
+      {image && <img src={`data:image/png;base64,${image}`} alt="Soil Data" />}
+    </div>
+  );
+};
 
 const Croppred = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -10,7 +34,9 @@ const Croppred = () => {
   const [resultImage, setResultImage] = useState(null);
   const [error, setError] = useState(null);
   const [result, setResult] = useState(null);
-  const hasReadAloud = useRef(false); 
+  const [recommendations, setRecommendations] = useState(null);
+  const [image, setImage] = useState(null);
+  const hasReadAloud = useRef(false);
 
   const API_URL = import.meta.env.VITE_BACKEND_API_URL;
 
@@ -27,58 +53,128 @@ const Croppred = () => {
         console.log("Speaking the text");
         window.speechSynthesis.speak(utterance);
         hasReadAloud.current = true;
-      } else {
-        console.log("Text has already been read aloud");
       }
-    } else {
-      console.error("Speech synthesis not supported in this browser.");
     }
   };
 
-  // Read aloud when the component mounts
-  useEffect(() => {
-    const welcomeText = "Upload a soil report image to find best crops for your field.";
-    readAloud(welcomeText);
-    return () => {
-      console.log("Stopping speech on page change.");
-      window.speechSynthesis.cancel();
+  const extractNutrients = (ocrText) => {
+    const nutrients = {
+      organicCarbon: null,
+      nitrogen: null,
+      phosphorus: null,
+      potassium: null,
+      magnesium: null,
+      calcium: null,
+      manganese: null,
+      iron: null,
+      copper: null,
+      zinc: null,
+      boron: null,
     };
-  }, []); // Empty dependency array ensures this runs only once on mount
-
-  const handleFileUpload = async (e) => {
-    const uploadedFile = e.target.files[0];
-    if (uploadedFile) {
-      setFile(uploadedFile);
-      setLoading(true);
-      setError(null);
-      setResult(null);
-
-      try {
-        const formData = new FormData();
-        formData.append("file", uploadedFile);
-        setPreviewImage(URL.createObjectURL(uploadedFile));
-
-        const response = await fetch(`${API_URL}/upload`, {
-          method: "POST",
-          body: formData,
-          mode: 'cors',
-          headers: {
-            'Accept': 'image/*'
-          }
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+  
+    // Split the OCR text into lines for easier processing
+    const lines = ocrText.split('\n');
+  
+    // Define the order of nutrients as they appear in the text
+    const nutrientOrder = [
+      'organicCarbon',
+      'nitrogen',
+      'phosphorus',
+      'potassium',
+      'magnesium',
+      'calcium',
+      'manganese',
+      'iron',
+      'copper',
+      'zinc',
+      'boron',
+    ];
+  
+    // Iterate through the lines to extract values
+    let valueIndex = 0; // Tracks the position of the values
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+  
+      // Check if the line is a number (i.e., a nutrient value)
+      if (!isNaN(parseFloat(line)) && isFinite(line)) {
+        // Assign the value to the corresponding nutrient
+        if (valueIndex < nutrientOrder.length) {
+          const nutrientKey = nutrientOrder[valueIndex];
+          nutrients[nutrientKey] = parseFloat(line);
+          valueIndex++;
         }
-
-        const blob = await response.blob();
-        setResultImage(URL.createObjectURL(blob));
-      } catch (err) {
-        console.error("Error:", err);
-        setError("Failed to process the file. Please try again.");
-      } finally {
-        setLoading(false);
       }
+    console.log(nutrients);
+  };
+  }
+  
+
+  const handleFileUpload = async (event) => {
+    const file = event.target.files[0];
+    setFile(file);
+    setLoading(true);
+    setError(null);
+    setResult(null);
+
+    const formData = new FormData();
+    formData.append('apikey', 'K83719120988957');
+    formData.append('language', 'eng');
+    formData.append('file', file);
+
+    // CALLING BACKEND SERVER
+
+    axios.get('http://localhost:8000/soil-data', {
+      params: {
+          nitrogen: 10,
+          phosphorus: 5,
+          potassium: 8,
+          magnesium: 3,
+          calcium: 7,
+          manganese: 2,
+          iron: 4,
+          copper: 1
+      }
+  })
+  .then(response => {
+      console.log(response.data);
+      setRecommendations(response.data.recommendations);
+      setImage(response.data.image);
+  })
+  .catch(error => {
+      console.error('Error fetching soil data:', error);
+  });
+
+    // END OF BACKEND SERVER
+
+    try {
+      console.log('Sending OCR request...');
+      const response = await fetch('https://api.ocr.space/parse/image', {
+        method: 'POST',
+        body: formData,
+      });
+      const data = await response.json();
+      console.log('OCR response received:', data);
+
+      if (data.ParsedResults && data.ParsedResults.length > 0) {
+        const ocrText = data.ParsedResults[0].ParsedText;
+        console.log('OCR Text:', ocrText);
+
+        //r
+        //const extractedData = extractNutrients(ocrText);
+        const extractedData=false
+        if (extractedData) {
+          setResult(extractedData);
+        } else {
+          setError('Relevant nutrient data not found.');
+        }
+      } else {
+        setError('No text found in the image.');
+      }
+    } catch (error) {
+      console.error('Error during OCR request:', error);
+      setError('Error during OCR request.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -225,27 +321,6 @@ const Croppred = () => {
               </div>
             )}
 
-            {/* Prediction Result */}
-            {!loading && result && (
-              <div className="result-container mb-6 text-center p-6 bg-[#f8fafc] rounded-lg shadow-xl">
-                <h2 className="text-2xl font-semibold text-[#141b0e] mb-4">
-                  Top 4 Crops You Can Grow:
-                </h2>
-                <div className="result-list text-left text-[#4b5563] text-lg">
-                  {result.map((crop, index) => (
-                    <div key={index} className="flex items-center mb-3">
-                      <span className="text-xl font-medium text-[#4b5563] mr-4">
-                        {index + 1}.
-                      </span>
-                      <p className="text-lg">{crop}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {error && <p className="text-red-500 mb-4">{error}</p>}
-
             <div className="flex gap-4 mt-4">
               {previewImage && (
                 <div>
@@ -280,6 +355,7 @@ const Croppred = () => {
                 <p className="text-blue-500">Processing your image...</p>
               </div>
             )}
+            {recommendations && <Recommendations recommendations={recommendations} image={image} />}
           </div>
         </div>
 
