@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Footer } from "./Footer";
 import farmBg from '../images/farm1.jpeg'; // Ensure this path is correct
@@ -9,6 +9,7 @@ const Weather = () => {
   const [location, setLocation] = useState({ latitude: null, longitude: null });
   const [forecast, setForecast] = useState([]);
   const [error, setError] = useState(null);
+  const hasReadAloud = useRef(false); // Track if speech has been triggered
 
   const API_KEY = import.meta.env.VITE_OPENWEATHER_API;
 
@@ -39,7 +40,19 @@ const Weather = () => {
     } else {
       setError('Geolocation is not supported by this browser.');
     }
-  }, []);
+  }, [API_KEY]);
+
+  useEffect(() => {
+    // Only read aloud if forecast data is available and hasn't been read yet
+    if (forecast.length > 0 && !hasReadAloud.current) {
+      readForecastAloud(forecast);
+      hasReadAloud.current = true; // Mark as read
+    }
+    return () => {
+      console.log("Stopping speech on page change.");
+      window.speechSynthesis.cancel();
+    };
+  }, [forecast]); // Run only when forecast changes
 
   const processForecastData = (forecastList) => {
     const dailyForecasts = [];
@@ -59,6 +72,26 @@ const Weather = () => {
     });
 
     return dailyForecasts;
+  };
+
+  const readForecastAloud = (forecast) => {
+    if ('speechSynthesis' in window) {
+      const utterance = new SpeechSynthesisUtterance();
+      let forecastText = "Here is the weather forecast for the next few days. ";
+
+      forecast.forEach((day, index) => {
+        forecastText += `On ${day.date}, the temperature will be ${day.temperature} degrees Celsius with ${day.description}. `;
+      });
+
+      utterance.text = forecastText;
+      utterance.lang = 'en-US';
+      utterance.rate = 1; // Speed of speech
+      utterance.pitch = 1; // Pitch of speech
+
+      speechSynthesis.speak(utterance);
+    } else {
+      console.error('Speech synthesis not supported in this browser.');
+    }
   };
 
   return (

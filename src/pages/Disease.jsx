@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect, useRef  } from 'react';
 import '../App.css';
 import { useNavigate } from "react-router-dom";
 
@@ -9,6 +9,32 @@ const Disease = () => {
   const [image, setImage] = useState(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
+  const hasReadAloud = useRef(false); 
+
+  const readAloud = (text) => {
+    console.log("readAloud called with text:", text);
+    if ('speechSynthesis' in window) {
+      console.log("Speech synthesis supported");
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'hi-IN'; // Set the language
+      utterance.rate = 1; // Speed of speech
+      utterance.pitch = 1; // Pitch of speech
+      if (!hasReadAloud.current) {
+        console.log("Speaking the text");
+        window.speechSynthesis.speak(utterance);
+        hasReadAloud.current = true;
+      } else {
+        console.log("Text has already been read aloud");
+      }
+    } else {
+      console.error("Speech synthesis not supported in this browser.");
+    }
+  };
+
+  useEffect(() => {
+      const welcomeText = "Upload image to detect crop diseases. Click on the Upload Image button to get started.";
+      readAloud(welcomeText);
+    }, []);
 
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
