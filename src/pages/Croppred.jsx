@@ -1,6 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from 'axios';
+import { GoogleGenerativeAI } from "@google/generative-ai";
+
+const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 const Recommendations = ({ recommendations, image }) => {
   const emojis = {
@@ -37,7 +41,7 @@ const Croppred = () => {
   const [recommendations, setRecommendations] = useState(null);
   const [image, setImage] = useState(null);
   const hasReadAloud = useRef(false);
-
+  const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
   const API_URL = import.meta.env.VITE_BACKEND_API_URL;
 
   // Function to read text aloud
@@ -57,56 +61,72 @@ const Croppred = () => {
     }
   };
 
-  const extractNutrients = (ocrText) => {
-    const nutrients = {
-      organicCarbon: null,
-      nitrogen: null,
-      phosphorus: null,
-      potassium: null,
-      magnesium: null,
-      calcium: null,
-      manganese: null,
-      iron: null,
-      copper: null,
-      zinc: null,
-      boron: null,
-    };
+  // const extractNutrients = (ocrText) => {
+  //   const nutrients = {
+  //     organicCarbon: null,
+  //     nitrogen: null,
+  //     phosphorus: null,
+  //     potassium: null,
+  //     magnesium: null,
+  //     calcium: null,
+  //     manganese: null,
+  //     iron: null,
+  //     copper: null,
+  //     zinc: null,
+  //     boron: null,
+  //   };
   
-    // Split the OCR text into lines for easier processing
-    const lines = ocrText.split('\n');
+  //   // Split the OCR text into lines for easier processing
+  //   const lines = ocrText.split('\n');
+  //   console.log("OCR Text Lines:", lines);
   
-    // Define the order of nutrients as they appear in the text
-    const nutrientOrder = [
-      'organicCarbon',
-      'nitrogen',
-      'phosphorus',
-      'potassium',
-      'magnesium',
-      'calcium',
-      'manganese',
-      'iron',
-      'copper',
-      'zinc',
-      'boron',
-    ];
+  //   // Define the order of nutrients as they appear in the text
+  //   const nutrientOrder = [
+  //     'organicCarbon',
+  //     'nitrogen',
+  //     'phosphorus',
+  //     'potassium',
+  //     'magnesium',
+  //     'calcium',
+  //     'manganese',
+  //     'iron',
+  //     'copper',
+  //     'zinc',
+  //     'boron'
+  //   ];
   
-    // Iterate through the lines to extract values
-    let valueIndex = 0; // Tracks the position of the values
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i].trim();
+  //   let valueIndex = 0;
   
-      // Check if the line is a number (i.e., a nutrient value)
-      if (!isNaN(parseFloat(line)) && isFinite(line)) {
-        // Assign the value to the corresponding nutrient
-        if (valueIndex < nutrientOrder.length) {
-          const nutrientKey = nutrientOrder[valueIndex];
-          nutrients[nutrientKey] = parseFloat(line);
-          valueIndex++;
-        }
-      }
-    console.log(nutrients);
+  //   for (let i = 0; i < lines.length; i++) {
+  //     const line = lines[i].trim();
+  //     console.log(`Processing line ${i}:`, line);
+  
+  //     // Check if the line is a number (i.e., a nutrient value)
+  //     if (!isNaN(parseFloat(line)) && isFinite(line)) {
+  //       // Assign the value to the corresponding nutrient
+  //       if (valueIndex < nutrientOrder.length) {
+  //         const nutrientKey = nutrientOrder[valueIndex];
+  //         nutrients[nutrientKey] = parseFloat(line);
+  //         console.log(`Extracted ${nutrientKey}:`, nutrients[nutrientKey]);
+  //         valueIndex++;
+  //       }
+  //     }
+  //   }
+  
+  //   console.log("Extracted Nutrients:", nutrients);
+  //   return nutrients;
+  // };
+  const fetchChatbotResponse = async (ocrText) => {
+    try {
+      const result = await model.generateContent("Find values of Nitrogen, Phosphorous and potassium from following text: ",ocrText);
+      const response = await result.response;
+      console.log("Chatbot response:", response.text());
+      return response.text();
+    } catch (error) {
+      console.error("Error fetching chatbot response:", error);
+      return "Sorry, I couldn't process your request.";
+    }
   };
-  }
   
 
   const handleFileUpload = async (event) => {
