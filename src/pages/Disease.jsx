@@ -269,30 +269,28 @@ const Disease = () => {
             </div>
           )}
 
-          {/* Uploaded Image Preview
-          {image && !loading && (
-            <div className="w-full flex flex-col items-center">
-              <h2 className="text-xl font-semibold text-gray-800 mb-2">Uploaded Image</h2>
-              <img
-                src={image}
-                alt="Uploaded Crop"
-                className="w-full max-w-xs sm:max-w-sm rounded-lg shadow"
-              />
-            </div>
-          )} */}
-
           {/* Result Display */}
-          {!loading && diseaseName && (
-            <div className="w-full flex flex-col items-center">
-              <h2 className="text-xl font-semibold text-gray-800 mb-2">Analysis Result</h2>
-              <div className="bg-gray-100 p-4 rounded-lg shadow max-w-sm w-full">
-                <p className="text-gray-700">{diseaseName}</p>
-                {resultImageUrl && (
-                  <img src={`http://localhost:5000${resultImageUrl}`} alt="Detection Result" style={{ maxWidth: '100%', height: 'auto' }} />
-                )}
-              </div>
-            </div>
-          )}
+          {loading && (
+  <div className="w-full flex flex-col items-center">
+    <h2 className="text-xl font-semibold text-gray-800 mb-2">Processing Image...</h2>
+    <div className="flex justify-center items-center">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+      <p className="text-gray-700 ml-4">Analyzing the image...</p>
+    </div>
+  </div>
+)}
+
+{!loading && diseaseName && (
+  <div className="w-full flex flex-col items-center">
+    <h2 className="text-xl font-semibold text-gray-800 mb-2">Analysis Result</h2>
+    <div className="bg-gray-100 p-4 rounded-lg shadow max-w-sm w-full">
+      <p className="text-gray-700">{diseaseName}</p>
+      {resultImageUrl && (
+        <img src={`http://localhost:5000${resultImageUrl}`} alt="Detection Result" style={{ maxWidth: '100%', height: 'auto' }} />
+      )}
+    </div>
+  </div>
+)}
         </div>
       </div>
 
