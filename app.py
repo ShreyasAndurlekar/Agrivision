@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, send_file, jsonify
+from flask import Flask, render_template, request, send_file, make_response
 from werkzeug.utils import secure_filename
 import io
 import os
@@ -9,15 +9,17 @@ import random  # For random color generation
 app = Flask(__name__)
 CORS(app, resources={
     r"/*": {
-        "origins": "*",  # Allow all origins
-        "methods": ["POST", "OPTIONS"],  # Allow POST and preflight
-        "allow_headers": ["Content-Type"]
+        "origins": ["http://localhost:5173", "https://ag-six.vercel.app/"],
+        "methods": ["POST", "OPTIONS", "GET"],
+        "allow_headers": ["Content-Type"],
+        "expose_headers": ["Content-Type"],
+        "supports_credentials": True
     }
 })
 
 # Configure upload folder
 UPLOAD_FOLDER = 'uploads'
-ALLOWED_EXTENSIONS = {'pdf'}
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}  # Changed from PDF to image types
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # Create uploads directory if it doesn't exist
@@ -55,27 +57,29 @@ def home():
 @app.route("/upload", methods=['POST', 'OPTIONS'])
 def upload_file():
     if request.method == 'OPTIONS':
-        # Handle preflight request
         response = make_response()
-        response.headers.add('Access-Control-Allow-Origin', '*')
-        response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
-        response.headers.add('Access-Control-Allow-Methods', 'POST')
+        response.headers['Access-Control-Allow-Origin'] = request.headers.get('Origin', '*')
+        response.headers['Access-Control-Allow-Methods'] = 'POST, OPTIONS'
+        response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
+        response.headers['Access-Control-Max-Age'] = '3600'
         return response
 
     if 'file' not in request.files:
-        return jsonify({'error': 'No file part'}), 400
-    
+        return {'error': 'No file'}, 400
+        
     file = request.files['file']
-    if file.filename == '':
-        return jsonify({'error': 'No selected file'}), 400
+    if file and allowed_file(file.filename):
+        # Generate random image
+        image_stream = generate_random_image()
+        
+        # Return image for display
+        return send_file(
+            image_stream,
+            mimetype='image/png',
+            as_attachment=False  # Important for browser display
+        )
 
-    # Process file and return image
-    image_path = 'images/kash.jpeg'
-    return send_file(
-        image_path,
-        mimetype='image/jpeg',
-        as_attachment=False  # This will display instead of download
-    )
+    return {'error': 'Invalid file'}, 400
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.run(debug=True, port=5000)
