@@ -33,10 +33,16 @@ const Contact = () => {
             &#10005;
           </button>
           <nav className="mt-8 space-y-4">
-            <a href="#" className="block text-base font-medium text-[#131811] hover:underline">
+            <a onClick={() => {
+    navigate("/");
+    setSidebarOpen(false); // Close sidebar after navigating
+  }}className="block text-base font-medium text-[#131811] hover:underline">
               Home
             </a>
-            <a href="#" className="block text-base font-medium text-[#131811] hover:underline">
+            <a onClick={() => {
+      navigate("/Contact");
+      setSidebarOpen(false);
+    }} className="block text-base font-medium text-[#131811] hover:underline">
               Contact Us
             </a>
             <a href="#" className="block text-base font-medium text-[#131811] hover:underline">
