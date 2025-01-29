@@ -16,3 +16,4 @@ __pycache__/
 instance/
 .webassets-cache
 .vercel
+my_env/

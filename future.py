@@ -1,4 +1,4 @@
-mport requests
+import requests
 from datetime import datetime
 
 # Input latitude and longitude

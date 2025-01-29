@@ -15,6 +15,9 @@ from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 import joblib
 import matplotlib.pyplot as plt
 import requests
+import base64
+import matplotlib
+matplotlib.use('Agg')
 
 
 # Function to fetch seasonal weather data from the API
@@ -364,16 +367,19 @@ def get_soil_data():
             zinc=zinc,
             ph=ph
         )
-        
+
+        # Read and encode the image in base64
+        with open('crop_yield_potential.png', 'rb') as image_file:
+            encoded_image = base64.b64encode(image_file.read()).decode('utf-8')
+
         return jsonify({
             "status": "success",
-            "recommendations": recommendations
-        }), 200
-        
+            "recommendations": recommendations,
+            "image": encoded_image
+        })
+
     except Exception as e:
-        return jsonify({
-            "status": "error",
-            "message": str(e)
-        }), 400
+        return {'error': str(e)}, 400
+
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    app.run(debug=True, port=8000)
