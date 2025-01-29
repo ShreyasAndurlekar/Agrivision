@@ -10,7 +10,7 @@ const Contact = () => {
     { name: 'Devam Desai', email: 'devamdesai126@gmail.com', phone: '8369778331' },
     { name: 'Shreyas Andurlekar', email: 'and.shreyas@gmail.com', phone: '7045128451' },
     { name: 'Vishal Jadhav', email: 'vishal194517@gmail.com', phone: '8657525174' },
-    { name: 'Arya Khot', email: 'nugugug', phone: '7021263525' }
+    { name: 'Arya Khot', email: 'aryakhot4@gmail.com', phone: '7021263525' }
   ];
 
   return (
