@@ -2,54 +2,53 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const Croppred = () => {
-    const [sidebarOpen, setSidebarOpen] = useState(false);
-    const navigate = useNavigate();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const navigate = useNavigate();
+  const [file, setFile] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [previewImage, setPreviewImage] = useState(null);
+  const [resultImage, setResultImage] = useState(null);
+  const [error, setError] = useState(null);
+  const [result, setResult] = useState(null);
 
-    const [file, setFile] = useState(null);
-    const [loading, setLoading] = useState(false);
-    const [result, setResult] = useState(null);
-
+  const API_URL = import.meta.env.VITE_BACKEND_API_URL;
 
   const handleFileUpload = async (e) => {
     const uploadedFile = e.target.files[0];
     if (uploadedFile) {
       setFile(uploadedFile);
       setLoading(true);
-  
-      // Simulated API call
+      setError(null);
+      setResult(null);
+
       try {
         const formData = new FormData();
         formData.append("file", uploadedFile);
-  
-        const response = await fetch("https://your-api-endpoint.com/predict", {
+        setPreviewImage(URL.createObjectURL(uploadedFile));
+
+        const response = await fetch(`${API_URL}/upload`, {
           method: "POST",
           body: formData,
+          mode: 'cors',
+          headers: {
+            'Accept': 'image/*'
+          }
         });
-  
-        const data = await response.json();
-        setResult(data.predictions); // Assuming the response has a 'predictions' array
-      } catch (error) {
-        console.error("Error processing file:", error);
-        alert("Failed to process the file. Please try again.");
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const blob = await response.blob();
+        setResultImage(URL.createObjectURL(blob));
+      } catch (err) {
+        console.error("Error:", err);
+        setError("Failed to process the file. Please try again.");
+      } finally {
+        setLoading(false);
       }
-  
-      setLoading(false);
     }
   };
-
-//      // Simulate processing time and result generation
-//      setTimeout(() => {
-//         // Example: Top 4 crops prediction (this should be replaced with actual logic based on file)
-//         setResult([
-//           "Wheat",
-//           "Rice",
-//           "Corn",
-//           "Soybean",
-//         ]);
-//         setLoading(false);
-//       }, 2000);
-//     }
-//   };
 
   return (
     <div
@@ -190,6 +189,35 @@ const Croppred = () => {
                 </div>
               </div>
             )}
+
+            {error && <p className="text-red-500 mb-4">{error}</p>}
+      
+      <div className="flex gap-4 mt-4">
+        {previewImage && (
+          <div>
+            <h3 className="text-lg font-semibold mb-2">Uploaded Image:</h3>
+            <img src={previewImage} alt="Preview" className="max-w-xs rounded-lg shadow-md" />
+          </div>
+        )}
+        
+        {resultImage && (
+          <div>
+            <h3 className="text-lg font-semibold mb-2">Processed Image:</h3>
+            <img src={resultImage} alt="Result" className="max-w-xs rounded-lg shadow-md" />
+            {result && (
+              <div className="mt-2">
+                <p>Results: {JSON.stringify(result)}</p>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {loading && (
+        <div className="mt-4">
+          <p className="text-blue-500">Processing your image...</p>
+        </div>
+      )}
           </div>
         </div>
         
@@ -259,7 +287,6 @@ const Croppred = () => {
 };
 
 export default Croppred;
-
 
 
 
