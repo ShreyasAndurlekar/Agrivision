@@ -11,6 +11,10 @@ import Contact from "./pages/Contact";
 import { NavBar } from "./pages/Navbar"
 import GTranslate from "./GTranslate";
 import ChatbotPopup from "./pages/ChatbotPopup";
+
+
+import Market from "./pages/Market";
+
 const App = () => {
   return (
     <Router>
@@ -25,6 +29,9 @@ const App = () => {
         <Route path="/NavBar" element={<NavBar />} />
         <Route path="/Contact" element={<Contact />} />
         <Route path="/Chatbotpopup" element={<ChatbotPopup />} />
+
+
+        <Route path="/Market" element={<Market />} />
       </Routes>
       <ToastContainer />
     </Router>
