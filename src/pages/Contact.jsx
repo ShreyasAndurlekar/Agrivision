@@ -8,7 +8,9 @@ const Contact = () => {
 
   const hosts = [
     { name: 'Devam Desai', email: 'devamdesai126@gmail.com', phone: '8369778331' },
-    { name: 'Shreyas Andurlekar', email: 'shr.and.rt22@dypatil.edu', phone: '098-765-4321' }
+    { name: 'Shreyas Andurlekar', email: 'and.shreyas@gmail.com', phone: '7045128451' },
+    { name: 'Vishal Jadhav', email: 'vishal194517@gmail.com', phone: '8657525174' },
+    { name: 'Arya Khot', email: 'nugugug', phone: '7021263525' }
   ];
 
   return (
