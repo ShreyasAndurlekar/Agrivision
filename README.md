@@ -5,7 +5,9 @@ Clone the main repository
 npm i - Install dependencies  
 npm run dev - Run the application  
 -------------------------------------  
-Backend consists of two Python projects which allow AI features to be used via an API call using Flask.  
+Backend consists of two Python projects which allow AI features to be used via an API call using Flask.    
+1) Server branch - Crop Recommendation
+   
 Use `pip install -r requirements.txt` to install all the dependencies.  
 Run `python app.py`.  
 
