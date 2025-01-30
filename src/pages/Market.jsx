@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Footer } from './Footer'; // Adjust the import path as per your project structure
-import lentilsImage from './images/lentil.jpeg';
+import lentilsImage from '../images/lentil.jpeg';
 import appleImage from '../images/apple.jpeg';
 
 const Market = () => {
