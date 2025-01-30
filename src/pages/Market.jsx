@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import { Footer } from './Footer'; // Adjust the import path as per your project structure
+import lentilsImage from './images/lentil.jpeg';
+import appleImage from '../images/apple.jpeg';
 
 const Market = () => {
     const [showPopup, setShowPopup] = useState(true);
     const [cropPredictions, setCropPredictions] = useState(null);
     const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [localPrices, setLocalPrices] = useState([]);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -14,7 +18,41 @@ const Market = () => {
         if (predictions) {
             setCropPredictions(JSON.parse(predictions));
         }
+
+        // Fetch market data for default regions
+        fetchMarketDataForDistricts(['Mumbai', 'Thane', 'Raigad', 'Palghar']);
     }, []);
+
+    const fetchMarketData = async (district) => {
+        const url = 'https://api.data.gov.in/resource/35985678-0d79-46b4-9ed6-6f13308a1d24';
+        const params = {
+            'api-key': '579b464db66ec23bdd000001c4f17efbf65d4f8c705ebff27d8edeb1',
+            'format': 'json',
+            'filters[State.keyword]': 'Maharashtra',
+            'filters[District.keyword]': district,
+            'filters[Commodity.keyword]': 'Apple', // Example commodity, you can adjust this based on prediction
+            'filters[Arrival_Date]': '25-01-2025'
+        };
+
+        try {
+            const response = await axios.get(url, { params });
+            if (response.data.records && response.data.records.length > 0) {
+                const minPrice = parseInt(response.data.records[0].Min_Price);
+                const maxPrice = parseInt(response.data.records[0].Max_Price);
+                return { district, minPrice, maxPrice };
+            } else {
+                return { district, minPrice: 'N/A', maxPrice: 'N/A' };
+            }
+        } catch (error) {
+            console.error('Error fetching market data for district:', district, error.message);
+            return { district, minPrice: 'N/A', maxPrice: 'N/A' };
+        }
+    };
+
+    const fetchMarketDataForDistricts = async (districts) => {
+        const priceData = await Promise.all(districts.map(district => fetchMarketData(district)));
+        setLocalPrices(priceData);
+    };
 
     const handleLogoutClick = () => {
         console.log("User logged out"); // Replace with actual logout logic
@@ -50,13 +88,13 @@ const Market = () => {
                             &#10005; {/* Cross icon */}
                         </button>
                         <nav className="mt-8 space-y-4">
-                            <a href="#" className="block text-base font-medium text-[#131811] hover:underline">
+                            <a href="#" className="block text-base font-medium text-[#131811] hover:underline" onClick={() => navigate("/")}>
                                 Home
                             </a>
-                            <a href="#" className="block text-base font-medium text-[#131811] hover:underline">
+                            <a href="#" className="block text-base font-medium text-[#131811] hover:underline" onClick={() => navigate("/Contact")}>
                                 Contact Us
                             </a>
-                            <a href="#" className="block text-base font-medium text-[#131811] hover:underline">
+                            <a href="#" className="block text-base font-medium text-[#131811] hover:underline" onClick={handleLogoutClick}>
                                 Logout
                             </a>
                         </nav>
@@ -99,7 +137,7 @@ const Market = () => {
                             <a className="text-[#131811] text-base font-medium" href="#" onClick={() => navigate("/Contact")}>
                                 Contact Us
                             </a>
-                            <a className="text-[#131811] text-base font-medium" href="#">
+                            <a className="text-[#131811] text-base font-medium" href="#" onClick={handleLogoutClick}>
                                 Logout
                             </a>
                         </nav>
@@ -192,63 +230,64 @@ const Market = () => {
                                     <p className="text-[#141b0e] text-base font-medium leading-normal">Old Oakland Farmers Market</p>
                                 </div>
                             </div>
+                            <h3 className="text-[#141b0e] text-lg font-bold leading-tight tracking-[-0.015em] px-4 pb-2 pt-4">Predicted crops</h3>
+                            <div className="grid grid-cols-[repeat(auto-fit,minmax(158px,1fr))] gap-3 p-4">
+                                <div className="flex flex-col gap-3 pb-3">
+                                    <div
+                                        className="w-full bg-center bg-no-repeat aspect-square bg-cover rounded-xl"
+                                        style={{ backgroundImage: 'url("https://cdn.usegalileo.ai/sdxl10/ec4834d5-8be4-49b8-847f-c35a22dd4dbf.png")' }}
+                                    ></div>
+                                    <div>
+                                        <p className="text-[#141b0e] text-base font-medium leading-normal">Tomato</p>
+                                        <p className="text-[#73974e] text-sm font-normal leading-normal">₹180 per kg</p>
+                                    </div>
+                                </div>
+                                <div className="flex flex-col gap-3 pb-3">
+                                    <div
+                                        className="w-full bg-center bg-no-repeat aspect-square bg-cover rounded-xl"
+                                        style={{ backgroundImage: 'url("https://cdn.usegalileo.ai/sdxl10/a3ef1a65-5978-4309-ab19-cc89bacad34d.png")' }}
+                                    ></div>
+                                    <div>
+                                        <p className="text-[#141b0e] text-base font-medium leading-normal">Maize</p>
+                                        <p className="text-[#73974e] text-sm font-normal leading-normal">₹60 per ear</p>
+                                    </div>
+                                </div>
+                                <div className="flex flex-col gap-3 pb-3">
+                                    <div
+                                        className="w-full bg-center bg-no-repeat aspect-square bg-cover rounded-xl"
+                                        style={{ backgroundImage: `url(${lentilsImage})` }}
+
+                                    ></div>
+                                    <div>
+                                        <p className="text-[#141b0e] text-base font-medium leading-normal">Lentil</p>
+                                        <p className="text-[#73974e] text-sm font-normal leading-normal">₹40 per head</p>
+                                    </div>
+                                </div>
+                                <div className="flex flex-col gap-3 pb-3">
+                                    <div
+                                        className="w-full bg-center bg-no-repeat aspect-square bg-cover rounded-xl"
+                                        style={{ backgroundImage: `url(${appleImage})` }}
+
+                                    ></div>
+                                    <div>
+                                        <p className="text-[#141b0e] text-base font-medium leading-normal">Apple</p>
+                                        <p className="text-[#73974e] text-sm font-normal leading-normal">₹240 per pint</p>
+                                    </div>
+                                </div>
+                            </div>
                             <h3 className="text-[#141b0e] text-lg font-bold leading-tight tracking-[-0.015em] px-4 pb-2 pt-4">Local prices</h3>
                             <div className="grid grid-cols-[repeat(auto-fit,minmax(158px,1fr))] gap-3 p-4">
-                                {cropPredictions ? (
-                                    cropPredictions.map((crop, index) => (
+                                {localPrices.length > 0 ? (
+                                    localPrices.map((price, index) => (
                                         <div key={index} className="flex flex-col gap-3 pb-3">
-                                            <div
-                                                className="w-full bg-center bg-no-repeat aspect-square bg-cover rounded-xl"
-                                                style={{ backgroundImage: url("https://example.com/${crop.toLowerCase()}.png") }} // Replace with actual image URLs
-                                            ></div>
                                             <div>
-                                                <p className="text-[#141b0e] text-base font-medium leading-normal">{crop}</p>
-                                                <p className="text-[#73974e] text-sm font-normal leading-normal">{(Math.random() * 5 + 1).toFixed(2)} per unit</p> {/* Example price */}                                            </div>
+                                                <p className="text-[#141b0e] text-base font-medium leading-normal">{price.district}</p>
+                                                <p className="text-[#73974e] text-sm font-normal leading-normal">Min Price: ₹{price.minPrice} Max Price: ₹{price.maxPrice}</p>
+                                            </div>
                                         </div>
                                     ))
                                 ) : (
-                                    <>
-                                        <div className="flex flex-col gap-3 pb-3">
-                                            <div
-                                                className="w-full bg-center bg-no-repeat aspect-square bg-cover rounded-xl"
-                                                style={{ backgroundImage: 'url("https://cdn.usegalileo.ai/sdxl10/ec4834d5-8be4-49b8-847f-c35a22dd4dbf.png")' }}
-                                            ></div>
-                                            <div>
-                                                <p className="text-[#141b0e] text-base font-medium leading-normal">Tomato</p>
-                                                <p className="text-[#73974e] text-sm font-normal leading-normal">$2.50 per pound</p>
-                                            </div>
-                                        </div>
-                                        <div className="flex flex-col gap-3 pb-3">
-                                            <div
-                                                className="w-full bg-center bg-no-repeat aspect-square bg-cover rounded-xl"
-                                                style={{ backgroundImage: 'url("https://cdn.usegalileo.ai/sdxl10/a3ef1a65-5978-4309-ab19-cc89bacad34d.png")' }}
-                                            ></div>
-                                            <div>
-                                                <p className="text-[#141b0e] text-base font-medium leading-normal">Corn</p>
-                                                <p className="text-[#73974e] text-sm font-normal leading-normal">$0.80 per ear</p>
-                                            </div>
-                                        </div>
-                                        <div className="flex flex-col gap-3 pb-3">
-                                            <div
-                                                className="w-full bg-center bg-no-repeat aspect-square bg-cover rounded-xl"
-                                                style={{ backgroundImage: 'url("https://cdn.usegalileo.ai/sdxl10/9c4b34a7-6f3e-4c62-95aa-458ae26eea77.png")' }}
-                                            ></div>
-                                            <div>
-                                                <p className="text-[#141b0e] text-base font-medium leading-normal">Lettuce</p>
-                                                <p className="text-[#73974e] text-sm font-normal leading-normal">$1.00 per head</p>
-                                            </div>
-                                        </div>
-                                        <div className="flex flex-col gap-3 pb-3">
-                                            <div
-                                                className="w-full bg-center bg-no-repeat aspect-square bg-cover rounded-xl"
-                                                style={{ backgroundImage: 'url("https://cdn.usegalileo.ai/sdxl10/915b4013-2b09-4d47-9a9f-dc9c83b5670c.png")' }}
-                                            ></div>
-                                            <div>
-                                                <p className="text-[#141b0e] text-base font-medium leading-normal">Strawberry</p>
-                                                <p className="text-[#73974e] text-sm font-normal leading-normal">$3.00 per pint</p>
-                                            </div>
-                                        </div>
-                                    </>
+                                    <p>No price data available.</p>
                                 )}
                             </div>
                             <div className="flex px-4 py-3">
