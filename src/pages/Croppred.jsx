@@ -43,91 +43,105 @@ const Croppred = () => {
   const hasReadAloud = useRef(false);
   const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
   const API_URL = import.meta.env.VITE_BACKEND_API_URL;
+  let n
+  let p
+  let k
 
-  // Function to read text aloud
   const readAloud = (text) => {
     console.log("readAloud called with text:", text);
     if ('speechSynthesis' in window) {
       console.log("Speech synthesis supported");
       const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'en-US'; // Set the language
+      utterance.lang = 'hi-IN'; // Set the language
       utterance.rate = 1; // Speed of speech
       utterance.pitch = 1; // Pitch of speech
       if (!hasReadAloud.current) {
         console.log("Speaking the text");
         window.speechSynthesis.speak(utterance);
         hasReadAloud.current = true;
+      } else {
+        console.log("Text has already been read aloud");
       }
+    } else {
+      console.error("Speech synthesis not supported in this browser.");
     }
   };
 
-  // const extractNutrients = (ocrText) => {
-  //   const nutrients = {
-  //     organicCarbon: null,
-  //     nitrogen: null,
-  //     phosphorus: null,
-  //     potassium: null,
-  //     magnesium: null,
-  //     calcium: null,
-  //     manganese: null,
-  //     iron: null,
-  //     copper: null,
-  //     zinc: null,
-  //     boron: null,
-  //   };
-  
-  //   // Split the OCR text into lines for easier processing
-  //   const lines = ocrText.split('\n');
-  //   console.log("OCR Text Lines:", lines);
-  
-  //   // Define the order of nutrients as they appear in the text
-  //   const nutrientOrder = [
-  //     'organicCarbon',
-  //     'nitrogen',
-  //     'phosphorus',
-  //     'potassium',
-  //     'magnesium',
-  //     'calcium',
-  //     'manganese',
-  //     'iron',
-  //     'copper',
-  //     'zinc',
-  //     'boron'
-  //   ];
-  
-  //   let valueIndex = 0;
-  
-  //   for (let i = 0; i < lines.length; i++) {
-  //     const line = lines[i].trim();
-  //     console.log(`Processing line ${i}:`, line);
-  
-  //     // Check if the line is a number (i.e., a nutrient value)
-  //     if (!isNaN(parseFloat(line)) && isFinite(line)) {
-  //       // Assign the value to the corresponding nutrient
-  //       if (valueIndex < nutrientOrder.length) {
-  //         const nutrientKey = nutrientOrder[valueIndex];
-  //         nutrients[nutrientKey] = parseFloat(line);
-  //         console.log(`Extracted ${nutrientKey}:`, nutrients[nutrientKey]);
-  //         valueIndex++;
-  //       }
-  //     }
-  //   }
-  
-  //   console.log("Extracted Nutrients:", nutrients);
-  //   return nutrients;
-  // };
-  const fetchChatbotResponse = async (ocrText) => {
-    try {
-      const result = await model.generateContent("Find values of Nitrogen, Phosphorous and potassium from following text: ",ocrText);
-      const response = await result.response;
-      console.log("Chatbot response:", response.text());
-      return response.text();
-    } catch (error) {
-      console.error("Error fetching chatbot response:", error);
-      return "Sorry, I couldn't process your request.";
+  useEffect(() => {
+    const welcomeText = "Upload image to predict best crop to grow in your field. Click on the Upload Image button to get started.";
+    readAloud(welcomeText);
+  }, []);
+
+  const parseOCRText = (ocrText) => {
+    if (startIndex === -1) {
+      console.error("Organic Carbon not found in OCR text");
+      return nutrients;
     }
+    const relevantText = ocrText.substring(startIndex);
+    console.log("Relevant OCR Text:", relevantText);
+    let valueIndex = 0;
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+      console.log(`Processing line ${i}:`, line);
+
+      // Check if the line is a number (i.e., a nutrient value)
+      if (!isNaN(parseFloat(line)) && isFinite(line)) {
+        // Assign the value to the corresponding nutrient
+        if (valueIndex < nutrientOrder.length) {
+          const nutrientKey = nutrientOrder[valueIndex];
+          nutrients[nutrientKey] = parseFloat(line);
+          console.log(`Extracted ${nutrientKey}:`, nutrients[nutrientKey]);
+          valueIndex++;
+        }
+      }
+    }
+
+    console.log("Extracted Nutrients:", nutrients);
+    return nutrients;
   };
-  
+
+  const fetchChatbotResponse = async (ocrText) => {
+    const relevantText = ocrText.substring(ocrText.indexOf("Organic Carbon"));
+    const result = await model.generateContent(`Find values of Nitrogen, Phosphorous, and Potassium from the following text, giving answer only as three numbers without any text at all: ${relevantText}`);
+    const response = await result.response;
+    const responseText = await response.text();
+    console.log("Chatbot response:", responseText);
+
+    // Split the response text by commas and assign to global variables
+    const values = responseText.split(',').map(value => value.trim());
+    if (values.length === 3) {
+      n = parseFloat(values[0]);
+      p = parseFloat(values[1]);
+      k = parseFloat(values[2]);
+      console.log(`Extracted values - Nitrogen: ${n}, Phosphorus: ${p}, Potassium: ${k}`);
+    } else {
+      console.error("Unexpected response format");
+    }
+
+    return responseText;
+  };
+
+  const extractNutrients = (text) => {
+    const nutrients = {
+      nitrogen: null,
+      phosphorus: null,
+      potassium: null,
+    };
+
+    const lines = text.split('\n');
+    lines.forEach(line => {
+      if (line.toLowerCase().includes('nitrogen')) {
+        nutrients.nitrogen = parseFloat(line.match(/\d+/)[0]);
+      } else if (line.toLowerCase().includes('phosphorus')) {
+        nutrients.phosphorus = parseFloat(line.match(/\d+/)[0]);
+      } else if (line.toLowerCase().includes('potassium')) {
+        nutrients.potassium = parseFloat(line.match(/\d+/)[0]);
+      }
+    });
+
+    return nutrients;
+  };
 
   const handleFileUpload = async (event) => {
     const file = event.target.files[0];
@@ -140,31 +154,6 @@ const Croppred = () => {
     formData.append('apikey', 'K83719120988957');
     formData.append('language', 'eng');
     formData.append('file', file);
-
-    // CALLING BACKEND SERVER
-
-    axios.get('http://localhost:8000/soil-data', {
-      params: {
-          nitrogen: 10,
-          phosphorus: 5,
-          potassium: 8,
-          magnesium: 3,
-          calcium: 7,
-          manganese: 2,
-          iron: 4,
-          copper: 1
-      }
-  })
-  .then(response => {
-      console.log(response.data);
-      setRecommendations(response.data.recommendations);
-      setImage(response.data.image);
-  })
-  .catch(error => {
-      console.error('Error fetching soil data:', error);
-  });
-
-    // END OF BACKEND SERVER
 
     try {
       console.log('Sending OCR request...');
@@ -179,11 +168,33 @@ const Croppred = () => {
         const ocrText = data.ParsedResults[0].ParsedText;
         console.log('OCR Text:', ocrText);
 
-        //r
-        //const extractedData = extractNutrients(ocrText);
-        const extractedData=false
-        if (extractedData) {
+        const chatbotResponse = await fetchChatbotResponse(ocrText);
+        const extractedData = extractNutrients(chatbotResponse);
+
+        if (n && p && k) {
           setResult(extractedData);
+
+          // Call backend server with extracted data
+          axios.get('http://localhost:8000/soil-data', {
+            params: {
+              nitrogen: n,
+              phosphorus: p,
+              potassium: k,
+              magnesium: 3,
+              calcium: 7,
+              manganese: 2,
+              iron: 4,
+              copper: 1
+            }
+          })
+          .then(response => {
+            console.log(response.data);
+            setRecommendations(response.data.recommendations);
+            setImage(response.data.image);
+          })
+          .catch(error => {
+            console.error('Error fetching soil data:', error);
+          });
         } else {
           setError('Relevant nutrient data not found.');
         }
@@ -433,14 +444,14 @@ const Croppred = () => {
                   height="20"
                 >
                   <path d="M22.23 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.2.79 24 1.77 24h20.46c.98 0 1.77-.8 1.77-1.77V1.73C24 .78 23.2 0 22.23 0zM7.06 20.45H3.56V9.04h3.5v11.41zm-1.75-13.03c-1.1 0-1.98-.88-1.98-1.97 0-1.1.88-1.98 1.98-1.98s1.98.88 1.98 1.98c0 1.1-.88 1.97-1.98 1.97zm15.7 13.03h-3.5v-5.57c0-1.33-.03-3.05-1.86-3.05-1.87 0-2.15 1.46-2.15 2.96v5.66h-3.5V9.04h3.36v1.56h.05c.47-.9 1.62-1.84 3.34-1.84 3.57 0 4.23 2.35 4.23 5.41v6.28z" />
-                </svg>
-              </a>
+                 </svg>
+               </a>
             </div>
-          </div>
+           </div>
         </footer>
-      </div>
-    </div>
-  );
+       </div>
+   </div>
+   );
 };
 
 export default Croppred;
