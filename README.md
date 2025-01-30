@@ -1,16 +1,57 @@
-# React + Vite Frontend
+# Agrivision AI
 
-Clone the main repository  
------------------------------  
-npm i - Install dependencies  
-npm run dev - Run the application  
--------------------------------------  
-Backend consists of two Python projects which allow AI features to be used via an API call using Flask.    
-1) Server branch - Crop Recommendation
+
+
+## Vite + React
+
+
+
+1. **Install Node.js and it's package manager if it doesn't get installed with it**
+
+    ```bash
+    sudo apt install nodejs
+    sudo apt install npm
+    ```
+
+2. **Download the repository**
+
+    ```bash
+    git clone https://github.com/ShreyasAndurlekar/Agrivision
+    cd Agrivision
+    ```
+
+3. **Install dependencies and run development server**
+
+    ```bash
+    npm i
+    npm run dev
+    ```
+
+## Installation Guide For Backend 
+
+1. **Download the dependencies for Python**
+   ```bash
+    pip install -r requirements.txt
+    ```
+2. **Start the backend server**
+   ```bash
+    python app.py
+    ```
+
+3. **Required API Keys**
+- Gemini
+- OpenWeather
+- Open-Meteo
+- Open Government Data
    
-Use `pip install -r requirements.txt` to install all the dependencies.  
-Run `python app.py`.  
 
-2 Models - Crop Recommendation & Crop Disease
-------------------------------------  
-Unfortunately, since the AI models used are heavyweight, they could not be deployed to Vercel and need to be run from localhost.
+   
+## 
+
+**The AI models are too heavy to be deployed to Vercel**
+
+
+
+
+    
+
